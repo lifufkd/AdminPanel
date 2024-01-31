@@ -11,22 +11,24 @@ import datetime
 
 
 class DB:
-    def __init__(self, db_name, creds):
+    def __init__(self, config):
         super(DB, self).__init__()
         self.__db = None
         self.__cursor = None
-        self.__db_name = db_name
-        self.__creds = creds
+        self.__config = config
+        self.connect_db()
+        self.create_table()
 
     def connect_db(self):
-        self.__db = MySQLdb.connect(host=self.__creds[0], passwd=self.__creds[2], user=self.__creds[1], db=self.__db_name)
+        self.__db = MySQLdb.connect(host=self.__config['db_host'], passwd=self.__config['db_passwd'], user=self.__config['db_user'], db=self.__config['db_name'])
         self.__cursor = self.__db.cursor()
 
     def create_table(self):
         self.__cursor.execute('''
         CREATE TABLE IF NOT EXISTS users(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             login TEXT,
-            pasword TEXT,
+            password TEXT,
             role INT, # внешний ключ
             full_name TEXT, # JSON massive (имя, фамилия, отчество)
             photo MEDIUMBLOB,
@@ -39,6 +41,7 @@ class DB:
             blocked BOOL
         );
         CREATE TABLE IF NOT EXISTS application(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             number TEXT, # Номер (в оригинале)
             application_type INT, # внешний ключ
             payment_type INT, # внешний ключ
@@ -63,9 +66,11 @@ class DB:
             date_close DATE
         );
         CREATE TABLE IF NOT EXISTS role(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             role VARCHAR(255)
         );
         CREATE TABLE IF NOT EXISTS hospital(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             name TEXT,
             med_profiles TEXT, # внешние ключи в JSON
             moderator INT, # внешний ключ
@@ -83,9 +88,11 @@ class DB:
             requisites TEXT # JSON dict with (Номер договора, Управляющий клиники, Должность управляющего, ФИО управляющего, ИНН, КПП, ОГРН, Почтовый индекс, Расчетный счет, Название банка, Корреспондентский счет, БИК)
         );
         CREATE TABLE IF NOT EXISTS med_profile(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             med_profile TEXT
         );
         CREATE TABLE IF NOT EXISTS ksg(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             code VARCHAR(255),
             title TEXT,
             price INT,
@@ -93,6 +100,7 @@ class DB:
             mkb TEXT # внешние ключи в JSON
         );
         CREATE TABLE IF NOT EXISTS mkb(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             code VARCHAR(255),
             title TEXT,
             ksg TEXT, # внешние ключи в JSON
@@ -100,6 +108,7 @@ class DB:
             clinical_minimum TEXT # JSON 2d massive (КАТЕГОРИИ, НАЗВАНИЕ, ВРЕМЯ ДЕЙСТВИЯ (ДНЕЙ))
         );
         CREATE TABLE IF NOT EXISTS service(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             code VARCHAR(255),
             title TEXT,
             mkb TEXT, # внешние ключи в JSON
@@ -107,32 +116,48 @@ class DB:
             clinical_minimum TEXT # JSON 2d massive (КАТЕГОРИИ, НАЗВАНИЕ, ВРЕМЯ ДЕЙСТВИЯ (ДНЕЙ))
         );
         CREATE TABLE IF NOT EXISTS ratio_settings(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             parameter DECIMAL(12,2)
         );
         CREATE TABLE IF NOT EXISTS benefit_status(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             title TEXT
         );
         CREATE TABLE IF NOT EXISTS region(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             title TEXT,
             area TEXT # внешние ключи в JSON
         );
         CREATE TABLE IF NOT EXISTS area(
+            id INT AUTO_INCREMENT PRIMARY KEY,
             area TEXT,
             region INT #внешний ключ
         );
         CREATE TABLE IF NOT EXISTS application_status(
-        title TEXT
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title TEXT
         );
         CREATE TABLE IF NOT EXISTS payment_type(
-        title TEXT
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title TEXT
         );
         CREATE TABLE IF NOT EXISTS application_type(
-        title TEXT
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title TEXT
         );
         ''')
 
     def add_db_entry(self, query):
         self.__cursor.execute(query)
         self.__db.commit()
+
+    def authorization(self, login, password):
+        self.__cursor.execute(f'SELECT id FROM users WHERE login = "{login}" AND password = "{password}"')
+        if len(self.__cursor.fetchall()) != 0:
+            access = True
+        else:
+            access = False
+        return access
+
 
 
