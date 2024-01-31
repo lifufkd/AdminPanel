@@ -27,7 +27,7 @@ class DB:
             login TEXT,
             pasword TEXT,
             role INT, # внешний ключ
-            full_name TEXT, JSON massive (имя, фамилия, отчество)
+            full_name TEXT, # JSON massive (имя, фамилия, отчество)
             photo MEDIUMBLOB,
             date_create DATE,
             email VARCHAR(255),
@@ -55,7 +55,7 @@ class DB:
             hospitalized BOOL,
             hospital INT, # внешний ключ
             ratio DECIMAL(7,2),
-            status INT # внешний ключ
+            status INT, # внешний ключ
             date_create DATE,
             date_notice DATE,
             date_hospitalized DATE,
@@ -79,7 +79,7 @@ class DB:
             city TEXT,
             addres TEXT,
             photo LONGTEXT, # JSON massive with blobs
-            requisites TEXT, # JSON dict with (Номер договора, Управляющий клиники, Должность управляющего, ФИО управляющего, ИНН, КПП, ОГРН, Почтовый индекс, Расчетный счет, Название банка, Корреспондентский счет, БИК)
+            requisites TEXT # JSON dict with (Номер договора, Управляющий клиники, Должность управляющего, ФИО управляющего, ИНН, КПП, ОГРН, Почтовый индекс, Расчетный счет, Название банка, Корреспондентский счет, БИК)
         );
         CREATE TABLE IF NOT EXISTS med_profile(
             med_profile TEXT
