@@ -4,6 +4,7 @@
 #                     SBR                       #
 #################################################
 import MySQLdb
+import datetime
 ############static variables#####################
 
 #################################################
@@ -49,7 +50,7 @@ class DB:
             сhronic_diseases TEXT,
             comment_designer TEXT,
             comment_tutor TEXT,
-            file LONGTEXT,
+            file LONGTEXT, # JSON massive with blobs
             price INT,
             application_author INT, # внешний ключ
             hospitalized BOOL,
@@ -130,9 +131,8 @@ class DB:
         );
         ''')
 
-
-db = DB('db_adminka', ['localhost', 'root', 'toor'])
-db.connect_db()
-db.create_table()
+    def add_db_entry(self, query):
+        self.__cursor.execute(query)
+        self.__db.commit()
 
 
