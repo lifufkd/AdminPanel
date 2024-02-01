@@ -20,5 +20,5 @@ if __name__ == '__main__':
     work_dir = os.path.dirname(os.path.realpath(__file__))
     config = Parser(f'{work_dir}/{config_name}')
     db = DB(config._Parser__current_config)
-    ui = UI(config._Parser__current_config, db)
-    ft.app(target=ui.main, port=999, assets_dir=work_dir)
+    ui = UI(config._Parser__current_config, db, work_dir)
+    ft.app(target=ui.authorization_ui)
