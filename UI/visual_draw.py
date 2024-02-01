@@ -4,7 +4,7 @@
 #                     SBR                       #
 #################################################
 import flet as ft
-from modules.utilites import get_rtc
+from modules.utilites import get_rtc, get_data_main_page
 
 ############static variables#####################
 
@@ -12,11 +12,11 @@ from modules.utilites import get_rtc
 
 
 class UI:
-    def __init__(self, config, db, current_dir):
+    def __init__(self, config, db):
         super(UI, self).__init__()
+        self.__vault_keys = ['current_user']
         self.__config = config
         self.__db = db
-        self.__current_dir = current_dir
 
     def load_ui(self, page: ft.Page):
         page.title = "Вход"
@@ -26,14 +26,18 @@ class UI:
         for i in range(1):
             images.controls.append(
                 ft.Image(
-                    src=f'{self.__current_dir}/{self.__config["logo_path"]}',
+                    src=f'{self.__config["logo_path"]}',
                     width=420,
                 )
             )
         page.update()
 
         def login(event):
-            print(self.__db.authorization(user_login.value, user_pass.value))
+            user_data = self.__db.authorization(user_login.value, user_pass.value)
+            if user_data is not None:
+                page.session.set(self.__vault_keys[0], user_data)
+            else:
+                print(get_data_main_page(self.__db))
 
         def validate(event):
             if all([user_login.value, user_pass.value]):

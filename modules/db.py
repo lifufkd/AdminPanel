@@ -29,7 +29,7 @@ class DB:
             id INT AUTO_INCREMENT PRIMARY KEY,
             login TEXT,
             password TEXT,
-            role INT, # внешний ключ
+            role INT, # 0 - admin, 1 - moderator, 2 - curator, 3 - user
             full_name TEXT, # JSON massive (имя, фамилия, отчество)
             photo MEDIUMBLOB,
             date_create DATE,
@@ -64,10 +64,6 @@ class DB:
             date_notice DATE,
             date_hospitalized DATE,
             date_close DATE
-        );
-        CREATE TABLE IF NOT EXISTS role(
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            role VARCHAR(255)
         );
         CREATE TABLE IF NOT EXISTS hospital(
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -152,12 +148,15 @@ class DB:
         self.__db.commit()
 
     def authorization(self, login, password):
-        self.__cursor.execute(f'SELECT id FROM users WHERE login = "{login}" AND password = "{password}"')
-        if len(self.__cursor.fetchall()) != 0:
-            access = True
+        self.__cursor.execute(f'SELECT login, full_name, email, photo FROM users WHERE login = "{login}" AND password = "{password}"')
+        user_data = self.__cursor.fetchone()
+        if user_data is not None:
+            return list(user_data)
+
+    def get_quantity(self, table, addition=None):
+        if addition is not None:
+            self.__cursor.execute(f'SELECT count(*) FROM {table} WHERE {addition[0]} = "{addition[1]}"')
         else:
-            access = False
-        return access
-
-
+            self.__cursor.execute(f'SELECT count(*) FROM {table}')
+        return list(self.__cursor.fetchone())[0]
 
