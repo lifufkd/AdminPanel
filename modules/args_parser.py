@@ -25,7 +25,7 @@ class Parser:
                 config = file.read()
         else:
             self.create_conf()
-            sys.exit('config is empty')
+            sys.exit('config is not existed')
         return config
 
     def parse_args(self):
