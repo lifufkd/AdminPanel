@@ -4,19 +4,15 @@
 #                     SBR                       #
 #################################################
 from flet import *
-import matplotlib.pyplot as plt
-from flet.matplotlib_chart import MatplotlibChart
-from flet_navigator import PageData
+from functools import partial
 from modules.utilites import get_data_main_page
+from flet_navigator import PageData
 #################################################
 
 
 class SideBar(UserControl):
     def __init__(self):
         super().__init__()
-
-    def navigation(self, e):
-        print(e.control)
 
     def HighLight(self, e):
         # хуйня чтобы подсвечивались кнопки в сайдбаре
@@ -77,7 +73,6 @@ class SideBar(UserControl):
             height=45,
             border_radius=10,
             on_hover=lambda e: self.HighLight(e),
-            on_click=lambda e: self.navigation(e),
             content=Row(
                 controls=[
                     IconButton(
@@ -105,7 +100,10 @@ class SideBar(UserControl):
 
     def build(self):
         return Container(
-            padding=30,
+            width=200,
+            height=580,
+            padding=padding.only(top=10),
+            alignment=alignment.center,
             content=Column(
                 controls=[
                     # сюда иконки хуярить, будут в столбик
@@ -127,69 +125,91 @@ class SideBar(UserControl):
         )
 
 
-class Diagram:
+class PieChart(UserControl):
     def __init__(self):
-        super(Diagram, self).__init__()
-        self.__content = {1: ['База услуг', 'КСГ', 'МКБ', 'Услуги'], 2: ['Справочники', 'Регионы', 'Области', 'Мед. профили'], 3: ['Пользователи', 'Админы', 'Кураторы', 'Модераторы', 'Пользователи'] }
+        super().__init__()
 
-    def add_diagram(self, cont, data):
-        fig, ax = plt.subplots()
-        fruits = [self.__content[cont][1], self.__content[cont][2], self.__content[cont][3]]
-        counts = [data[0], data[1], data[2]]
-        bar_colors = ["tab:red", "tab:blue", "tab:orange"]
-        if cont == 3:
-            fruits.append(self.__content[cont][4])
-            counts.append(data[3])
-            bar_colors.append('tab:green')
-        ax.bar(fruits, counts, color=bar_colors)
-        ax.set_title(self.__content[cont][0])
-        return fig
+    def PieChart(self, page: Page):
+        normal_radius = 50
+        hover_radius = 60
+        normal_title_style = TextStyle(
+            size=16, color=colors.WHITE, weight=FontWeight.BOLD
+        )
+        hover_title_style = TextStyle(
+            size=22,
+            color=colors.WHITE,
+            weight=FontWeight.BOLD,
+            shadow=BoxShadow(blur_radius=2, color=colors.BLACK54),
+        )
+
+        def on_chart_event(e: PieChartEvent):
+            for idx, section in enumerate(chart.sections):
+                if idx == e.section_index:
+                    section.radius = hover_radius
+                    section.title_style = hover_title_style
+                else:
+                    section.radius = normal_radius
+                    section.title_style = normal_title_style
+            chart.update()
+
+        chart = PieChart(
+            sections=[
+                PieChartSection(
+                    value=40,
+                    title="40%",
+                    title_style=normal_title_style,
+                    color=colors.BLUE,
+                    radius=normal_radius,
+                ),
+                PieChartSection(
+                    value=30,
+                    title="30%",
+                    title_style=normal_title_style,
+                    color=colors.YELLOW,
+                    radius=normal_radius,
+                ),
+                PieChartSection(
+                    value=15,
+                    title="15%",
+                    title_style=normal_title_style,
+                    color=colors.PURPLE,
+                    radius=normal_radius,
+                ),
+                PieChartSection(
+                    value=15,
+                    title="15%",
+                    title_style=normal_title_style,
+                    color=colors.GREEN,
+                    radius=normal_radius,
+                ),
+            ],
+            sections_space=0,
+            center_space_radius=40,
+            on_chart_event=on_chart_event,
+            expand=True,
+        )
+        page.add(chart)
 
 
 class Main:
-    def __init__(self, vault, config, db):
+    def __init__(self):
         super(Main, self).__init__()
-        self.__vault = vault
-        self.__config = config
-        self.__diagram_data = get_data_main_page(db)
-        self.__diagram = Diagram()
 
     def main(self, pg: PageData):
         pg.page.title = "Главное меню"
         pg.page.theme_mode = 'dark'
+        pg.page.vertical_alignment = MainAxisAlignment.CENTER
+        pg.page.horizontal_alignment = MainAxisAlignment.CENTER
         pg.page.add(
-            Row(
-                [
-                Container(
-                    content=SideBar(),
-                ),
-                VerticalDivider(width=1),
-                Container(
-                    height=1000,
-                    width=1500,
-                    content=Row([
-                    Container(
-                        height=450,
-                        width=450,
-                        content=MatplotlibChart(self.__diagram.add_diagram(1, [self.__diagram_data['ksg'], self.__diagram_data['mkb'], self.__diagram_data['service']])),
-                    ),
-                    Container(
-                        height=450,
-                        width=450,
-                        content=MatplotlibChart(self.__diagram.add_diagram(2, [self.__diagram_data['region'], self.__diagram_data['area'], self.__diagram_data['med_profile']])),
-                    ),
-                    Container(
-                        height=450,
-                        width=450,
-                        content=MatplotlibChart(self.__diagram.add_diagram(3, [self.__diagram_data['users'][0], self.__diagram_data['users'][1], self.__diagram_data['users'][2], self.__diagram_data['users'][3]])),
-                            ),
-                        ],
-                        vertical_alignment=CrossAxisAlignment.START,
-                        alignment=MainAxisAlignment.SPACE_AROUND,
-                    ),
-                ),
-            ],
-                expand=True,
+            Container(
+                width=200,
+                height=1000,
+                bgcolor='black',
+                border_radius=10,
+                animate=animation.Animation(500, 'decelerate'),  # анимация для сайдбара
+                alignment=alignment.center,
+                padding=10,
+                content=SideBar(),
             )
         )
         pg.page.update()
