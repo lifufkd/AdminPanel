@@ -7,9 +7,10 @@ from flet import *
 
 
 class SideBar(UserControl):
-    def __init__(self):
+    def __init__(self, vault, pg):
         super().__init__()
         self.__buttonnames = ['Заявки', 'Клиники', 'Пользователи', 'Услуги', 'Справочники', 'Выйти', 'Пользователь']
+        self.__user_info = pg.page.session.get(vault[0])
 
     def navigation(self, e): #настроки для навигации
         if self.__buttonnames[0] == e.control.tooltip:
@@ -121,7 +122,7 @@ class SideBar(UserControl):
             content=Column(
                 controls=[
                     # сюда иконки хуярить, будут в столбик
-                    self.UserData("NT", "Nikita Tsapkov", "Frontend Developer"),  # инициалы челов
+                    self.UserData(f'{self.__user_info[1][0][0].upper()}{self.__user_info[1][1][0].upper()}', f'{self.__user_info[1][0]} {self.__user_info[1][1]}', self.__user_info[2]),  # инициалы челов
                     # разделитель
                     Divider(height=5, color="transparent"),
                     self.ContainedIcon(icons.REQUEST_PAGE, self.__buttonnames[0]),

@@ -4,6 +4,7 @@
 #                     SBR                       #
 #################################################
 import datetime
+import json
 ############static variables#####################
 
 #################################################
@@ -24,3 +25,7 @@ def get_data_main_page(db):
         else:
             cat_quantity[cat] = db.get_quantity(cat)
     return cat_quantity
+
+
+def unparse_json(data):
+    return json.loads(data)

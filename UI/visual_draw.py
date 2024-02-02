@@ -5,9 +5,7 @@
 #################################################
 import flet as ft
 from flet_navigator import VirtualFletNavigator
-from UI.pages import log_in, main
-from modules.utilites import get_rtc, get_data_main_page
-
+from UI.pages import log_in, main, applications, clinics, profile
 ############static variables#####################
 
 #################################################
@@ -20,7 +18,10 @@ class UI:
         self.__config = config
         self.__db = db
         self.__log_in = log_in.Log_in(self.__vault_keys, config, db)
-        self.__main = main.Main()
+        self.__main = main.Main(self.__vault_keys, config, db)
+        self.__application = applications.Application(self.__vault_keys, config, db)
+        self.__clinic = clinics.Clinic(self.__vault_keys, config, db)
+        self.profile = profile.Profile(self.__vault_keys, config, db)
 
     def main(self, page: ft.Page):
         page.theme_mode = 'dark'
@@ -28,12 +29,9 @@ class UI:
             {
                 '/': self.__log_in.log_in,
                 'main': self.__main.main,
-                #'applications': self.__applications.applications,
-                #'clinics': self.__clinics.clinics,
-                #'users': self.__users.users,
-                #'services': self.__services.services,
-                #'directories': self.__directories.directories,
-                #'profile': self.__profile.profile
+                'applications': self.__application.application,
+                'clinics': self.__clinic.clinic,
+                'profile': self.profile.profile
             }
         )
         flet_navigator.render(page)

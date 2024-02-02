@@ -3,15 +3,11 @@
 #                     ZZS                       #
 #                     SBR                       #
 #################################################
-import threading
-import time
-import json
 from modules.db import DB
 from UI.visual_draw import UI
 from modules.args_parser import Parser
 import flet as ft
 import os
-
 ############static variables#####################
 config_name = 'secrets.json'
 #################################################
@@ -21,5 +17,5 @@ if __name__ == '__main__':
     config = Parser(f'{work_dir}/{config_name}')
     db = DB(config._Parser__current_config)
     ui = UI(config._Parser__current_config, db)
-    ft.app(target=ui.main, port=999, assets_dir=work_dir)
+    ft.app(target=ui.main, port=999, assets_dir=work_dir, view=ft.AppView.WEB_BROWSER)
     #view=ft.AppView.WEB_BROWSER

@@ -4,8 +4,8 @@
 #                     SBR                       #
 #################################################
 import flet as ft
-from modules.utilites import get_data_main_page
 from flet_navigator import PageData
+from modules.utilites import unparse_json
 #################################################
 
 
@@ -41,11 +41,11 @@ class Log_in:
         def login(event):
             user_data = self.__db.authorization(user_login.value, user_pass.value)
             if user_data is not None:
+                user_data[1] = unparse_json(user_data[1])
                 pg.page.session.set(self.__vault[0], user_data)
                 pg.navigator.navigate('main', pg.page)
             else:
                 open_dlg_modal(None)
-                print(get_data_main_page(self.__db))
 
         def validate(event):
             if all([user_login.value, user_pass.value]):
@@ -70,7 +70,6 @@ class Log_in:
                 ft.TextButton("Ok", on_click=close_dlg),
             ],
             actions_alignment=ft.MainAxisAlignment.END,
-            on_dismiss=lambda e: print("Modal dialog dismissed!"),
         )
         pg.page.add(
             ft.Row(
