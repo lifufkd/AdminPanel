@@ -21,4 +21,5 @@ if __name__ == '__main__':
     config = Parser(f'{work_dir}/{config_name}')
     db = DB(config._Parser__current_config)
     ui = UI(config._Parser__current_config, db)
-    ft.app(target=ui.main, view=ft.WEB_BROWSER, port=999, assets_dir=work_dir)
+    ft.app(target=ui.main, port=999, assets_dir=work_dir)
+    #view=ft.AppView.WEB_BROWSER

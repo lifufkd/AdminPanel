@@ -4,8 +4,9 @@
 #                     SBR                       #
 #################################################
 from flet import *
-from functools import partial
-from modules.utilites import get_data_main_page
+import matplotlib
+import matplotlib.pyplot as plt
+from flet.matplotlib_chart import MatplotlibChart
 from flet_navigator import PageData
 #################################################
 
@@ -13,6 +14,21 @@ from flet_navigator import PageData
 class SideBar(UserControl):
     def __init__(self):
         super().__init__()
+        self.__buttonnames = ['Заявки', 'Клиники', 'Пользователи', 'Услуги', 'Справочники', 'Выйти']
+
+    def navigation(self, e):
+        if self.__buttonnames[0] == e.control.tooltip:
+            print('Заявка')
+        elif self.__buttonnames[1] == e.control.tooltip:
+            print('Клиники')
+        elif self.__buttonnames[2] == e.control.tooltip:
+            print('Пользователи')
+        elif self.__buttonnames[3] == e.control.tooltip:
+            print('Услуги')
+        elif self.__buttonnames[4] == e.control.tooltip:
+            print('Справочники')
+        elif self.__buttonnames[5] == e.control.tooltip:
+            print('Выйти')
 
     def HighLight(self, e):
         # хуйня чтобы подсвечивались кнопки в сайдбаре
@@ -73,6 +89,8 @@ class SideBar(UserControl):
             height=45,
             border_radius=10,
             on_hover=lambda e: self.HighLight(e),
+            on_click=lambda e: self.navigation(e),
+            tooltip=text,
             content=Row(
                 controls=[
                     IconButton(
@@ -100,95 +118,25 @@ class SideBar(UserControl):
 
     def build(self):
         return Container(
-            width=200,
-            height=580,
-            padding=padding.only(top=10),
-            alignment=alignment.center,
+            padding=30,
             content=Column(
                 controls=[
                     # сюда иконки хуярить, будут в столбик
                     self.UserData("NT", "Nikita Tsapkov", "Frontend Developer"),  # инициалы челов
                     # разделитель
                     Divider(height=5, color="transparent"),
-                    self.ContainedIcon(icons.REQUEST_PAGE, "Заявки"),
-                    self.ContainedIcon(icons.BUSINESS_OUTLINED, "Клиники"),
-                    self.ContainedIcon(icons.SUPERVISED_USER_CIRCLE, "Пользователи"),
+                    self.ContainedIcon(icons.REQUEST_PAGE, self.__buttonnames[0]),
+                    self.ContainedIcon(icons.BUSINESS_OUTLINED, self.__buttonnames[1]),
+                    self.ContainedIcon(icons.SUPERVISED_USER_CIRCLE, self.__buttonnames[2]),
                     # под пользователями еще 2 кнопки
-                    self.ContainedIcon(icons.ATTACH_MONEY, "Услуги"),
+                    self.ContainedIcon(icons.ATTACH_MONEY, self.__buttonnames[3]),
                     # под услугами еще 4 кнопки
-                    self.ContainedIcon(icons.DEHAZE_OUTLINED, "Справочники"),
+                    self.ContainedIcon(icons.DEHAZE_OUTLINED, self.__buttonnames[4]),
                     # под справочниками еще 3 кнопки
-                    Divider(height=5, color="white24"),
-                    self.ContainedIcon(icons.LOGOUT_ROUNDED, "Выйти"),
+                    self.ContainedIcon(icons.LOGOUT_ROUNDED, self.__buttonnames[5]),
                 ]
             ),
         )
-
-
-class PieChart(UserControl):
-    def __init__(self):
-        super().__init__()
-
-    def PieChart(self, page: Page):
-        normal_radius = 50
-        hover_radius = 60
-        normal_title_style = TextStyle(
-            size=16, color=colors.WHITE, weight=FontWeight.BOLD
-        )
-        hover_title_style = TextStyle(
-            size=22,
-            color=colors.WHITE,
-            weight=FontWeight.BOLD,
-            shadow=BoxShadow(blur_radius=2, color=colors.BLACK54),
-        )
-
-        def on_chart_event(e: PieChartEvent):
-            for idx, section in enumerate(chart.sections):
-                if idx == e.section_index:
-                    section.radius = hover_radius
-                    section.title_style = hover_title_style
-                else:
-                    section.radius = normal_radius
-                    section.title_style = normal_title_style
-            chart.update()
-
-        chart = PieChart(
-            sections=[
-                PieChartSection(
-                    value=40,
-                    title="40%",
-                    title_style=normal_title_style,
-                    color=colors.BLUE,
-                    radius=normal_radius,
-                ),
-                PieChartSection(
-                    value=30,
-                    title="30%",
-                    title_style=normal_title_style,
-                    color=colors.YELLOW,
-                    radius=normal_radius,
-                ),
-                PieChartSection(
-                    value=15,
-                    title="15%",
-                    title_style=normal_title_style,
-                    color=colors.PURPLE,
-                    radius=normal_radius,
-                ),
-                PieChartSection(
-                    value=15,
-                    title="15%",
-                    title_style=normal_title_style,
-                    color=colors.GREEN,
-                    radius=normal_radius,
-                ),
-            ],
-            sections_space=0,
-            center_space_radius=40,
-            on_chart_event=on_chart_event,
-            expand=True,
-        )
-        page.add(chart)
 
 
 class Main:
@@ -198,18 +146,52 @@ class Main:
     def main(self, pg: PageData):
         pg.page.title = "Главное меню"
         pg.page.theme_mode = 'dark'
-        pg.page.vertical_alignment = MainAxisAlignment.CENTER
-        pg.page.horizontal_alignment = MainAxisAlignment.CENTER
+        fig, ax = plt.subplots()
+
+        fruits = ["apple", "blueberry", "cherry", "orange"]
+        counts = [40, 100, 30, 55]
+        bar_labels = ["red", "blue", "_red", "orange"]
+        bar_colors = ["tab:red", "tab:blue", "tab:red", "tab:orange"]
+        logout = SideBar()
+        ax.bar(fruits, counts, label=bar_labels, color=bar_colors)
+
+        ax.set_ylabel("fruit supply")
+        ax.set_title("Fruit supply by kind and color")
+        ax.legend(title="Fruit color")
         pg.page.add(
-            Container(
-                width=200,
-                height=1000,
-                bgcolor='black',
-                border_radius=10,
-                animate=animation.Animation(500, 'decelerate'),  # анимация для сайдбара
-                alignment=alignment.center,
-                padding=10,
-                content=SideBar(),
+            Row(
+                [
+                Container(
+                    content=SideBar(),
+                ),
+                VerticalDivider(width=1),
+                Container(
+                    bgcolor=colors.BLACK,
+                    height=1000,
+                    width=1500,
+                    content=Row([
+                    Container(
+                        height=450,
+                        width=450,
+                        content=MatplotlibChart(fig),
+                    ),
+                    Container(
+                        height=450,
+                        width=450,
+                        content=MatplotlibChart(fig),
+                    ),
+                    Container(
+                        height=450,
+                        width=450,
+                        content=MatplotlibChart(fig),
+                            ),
+                        ],
+                        vertical_alignment=CrossAxisAlignment.START,
+                        alignment=MainAxisAlignment.SPACE_AROUND,
+                    ),
+                ),
+            ],
+                expand=True,
             )
         )
         pg.page.update()
