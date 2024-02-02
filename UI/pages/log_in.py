@@ -29,12 +29,22 @@ class Log_in:
             )
         pg.page.update()
 
+        def close_dlg(e):
+            dlg_modal.open = False
+            pg.page.update()
+
+        def open_dlg_modal(e):
+            pg.page.dialog = dlg_modal
+            dlg_modal.open = True
+            pg.page.update()
+
         def login(event):
             user_data = self.__db.authorization(user_login.value, user_pass.value)
             if user_data is not None:
                 pg.page.session.set(self.__vault[0], user_data)
                 pg.navigator.navigate('main', pg.page)
             else:
+                open_dlg_modal(None)
                 print(get_data_main_page(self.__db))
 
         def validate(event):
@@ -52,7 +62,16 @@ class Log_in:
                              text_align=ft.TextAlign.CENTER, size=20)
         under_text = ft.Text(value='Пожалуйста, войдите в свою учетную запись', size=15, text_align=ft.TextAlign.CENTER,
                              color='grey')
-
+        dlg_modal = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Вы ввели неверные данные"),
+            content=ft.Text("Повторите попытку"),
+            actions=[
+                ft.TextButton("Ok", on_click=close_dlg),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+            on_dismiss=lambda e: print("Modal dialog dismissed!"),
+        )
         pg.page.add(
             ft.Row(
                 [
