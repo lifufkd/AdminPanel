@@ -27,7 +27,13 @@ class UI:
         flet_navigator = VirtualFletNavigator(
             {
                 '/': self.__log_in.log_in,
-                'main': self.__main.main
+                'main': self.__main.main,
+                #'applications': self.__applications.applications,
+                #'clinics': self.__clinics.clinics,
+                #'users': self.__users.users,
+                #'services': self.__services.services,
+                #'directories': self.__directories.directories,
+                #'profile': self.__profile.profile
             }
         )
         flet_navigator.render(page)
