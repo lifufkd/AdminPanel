@@ -41,7 +41,10 @@ class Content(UserControl):
                                 DataColumn(Text(value='Тип оплаты', size=15)),
                                 DataColumn(Text(value='Статус заявки', size=15)),
                                 DataColumn(Text(value='Подтверждение факта поступления', size=15)),
+                                DataColumn(Text(value='Статус вознаграждения', size=15)),
                                 DataColumn(Text(value='Дата создания', size=15)),
+                                DataColumn(Text(value='', size=15)),
+                                DataColumn(Text(value='', size=15)),
                             ],
                             rows=self.generate_carts()
                         )
@@ -67,7 +70,9 @@ class Content(UserControl):
                         DataCell(Text(cart[3])),
                         DataCell(Text(cart[4])),
                         DataCell(Text(cart[5])),
-                        DataCell(Text(cart[6]))
+                        DataCell(Text(cart[6])),
+                        DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
+                        DataCell(IconButton(icon=icons.DELETE, tooltip='Удалить')),
                     ]
                 )
             )
@@ -80,8 +85,8 @@ class application_ui(UserControl):
 
     def build(self):
         # ЗНАЧЕНИЯ#
-        btn_create = FilledButton(text='Создать',
-                                  width=110)  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
+        btn_create = FilledButton(icon=icons.ADD, text='Создать',
+                                  width=130)  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
         pb = PopupMenuButton(
             items=[
                 PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт')
@@ -144,7 +149,7 @@ class Application:
                             offset=Offset(0, 0),
                             blur_style=ShadowBlurStyle.OUTER,
                         ),
-                    )
+                                                                                                                                                                                                                                                                                                     )
                 ],
                 expand=True,
             )
