@@ -11,14 +11,14 @@ from UI.sidebar import SideBar
 #################################################
 
 
-class Profile:
+class Mkb:
     def __init__(self, vault, config, db):
-        super(Profile, self).__init__()
+        super(Mkb, self).__init__()
         self.__vault = vault
         self.__config = config
 
-    def profile(self, pg: PageData):
-        pg.page.title = "Заявки"
+    def mkb(self, pg: PageData):
+        pg.page.title = "МКБ"
         pg.page.theme_mode = 'dark'
         pg.page.add(
             Row(

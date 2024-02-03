@@ -20,7 +20,7 @@ class DB:
         self.create_table()
 
     def connect_db(self):
-        self.__db = MySQLdb.connect(host=self.__config['db_host'], passwd=self.__config['db_passwd'], user=self.__config['db_user'], db=self.__config['db_name'])
+        self.__db = MySQLdb.connect(host=self.__config['db_host'], passwd=self.__config['db_passwd'], user=self.__config['db_user'], db=self.__config['db_name'], autocommit=True)
         self.__cursor = self.__db.cursor()
 
     def create_table(self):
@@ -148,7 +148,7 @@ class DB:
         self.__db.commit()
 
     def authorization(self, login, password):
-        self.__cursor.execute(f'SELECT login, full_name, email, photo FROM users WHERE login = "{login}" AND password = "{password}"')
+        self.__cursor.execute(f'SELECT login, full_name, email, photo FROM users WHERE login = "{login}" AND password = "{password}" AND role = "0"')
         user_data = self.__cursor.fetchone()
         if user_data is not None:
             return list(user_data)

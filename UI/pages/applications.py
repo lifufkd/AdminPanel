@@ -24,7 +24,7 @@ class Application:
             Row(
                 [
                 Container(
-                    content=SideBar(),
+                    content=SideBar(self.__vault, pg),
                     ),
                 VerticalDivider(width=1),
             ],

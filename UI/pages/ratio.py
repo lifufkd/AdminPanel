@@ -11,14 +11,14 @@ from UI.sidebar import SideBar
 #################################################
 
 
-class Profile:
+class Ratio:
     def __init__(self, vault, config, db):
-        super(Profile, self).__init__()
+        super(Ratio, self).__init__()
         self.__vault = vault
         self.__config = config
 
-    def profile(self, pg: PageData):
-        pg.page.title = "Заявки"
+    def ratio(self, pg: PageData):
+        pg.page.title = "Базовая ставка"
         pg.page.theme_mode = 'dark'
         pg.page.add(
             Row(

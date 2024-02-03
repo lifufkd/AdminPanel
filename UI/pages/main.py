@@ -36,10 +36,11 @@ class Main:
         super(Main, self).__init__()
         self.__vault = vault
         self.__config = config
-        self.__diagram_data = get_data_main_page(db)
+        self.__db = db
         self.__diagram = Diagram()
 
     def main(self, pg: PageData):
+        diagram_data = get_data_main_page(self.__db)
         pg.page.title = "Главное меню"
         pg.page.theme_mode = 'dark'
         pg.page.add(
@@ -56,17 +57,17 @@ class Main:
                     Container(
                         height=450,
                         width=450,
-                        content=MatplotlibChart(self.__diagram.add_diagram(1, [self.__diagram_data['ksg'], self.__diagram_data['mkb'], self.__diagram_data['service']])),
+                        content=MatplotlibChart(self.__diagram.add_diagram(1, [diagram_data['ksg'], diagram_data['mkb'], diagram_data['service']])),
                     ),
                     Container(
                         height=450,
                         width=450,
-                        content=MatplotlibChart(self.__diagram.add_diagram(2, [self.__diagram_data['region'], self.__diagram_data['area'], self.__diagram_data['med_profile']])),
+                        content=MatplotlibChart(self.__diagram.add_diagram(2, [diagram_data['region'], diagram_data['area'], diagram_data['med_profile']])),
                     ),
                     Container(
                         height=450,
                         width=450,
-                        content=MatplotlibChart(self.__diagram.add_diagram(3, [self.__diagram_data['users'][0], self.__diagram_data['users'][1], self.__diagram_data['users'][2], self.__diagram_data['users'][3]])),
+                        content=MatplotlibChart(self.__diagram.add_diagram(3, [diagram_data['users'][0], diagram_data['users'][1], diagram_data['users'][2], diagram_data['users'][3]])),
                             ),
                         ],
                         vertical_alignment=CrossAxisAlignment.START,
@@ -78,3 +79,4 @@ class Main:
             )
         )
         pg.page.update()
+        plt.close()
