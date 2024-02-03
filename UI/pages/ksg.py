@@ -23,12 +23,20 @@ class Ksg:
         pg.page.add(
             Row(
                 [
-                Container(
-                    content=SideBar(self.__vault, pg),
+                    Container(
+                        border_radius=10,
+                        content=SideBar(self.__vault, pg),
+                        shadow=BoxShadow(
+                            spread_radius=1,
+                            blur_radius=15,
+                            color=colors.BLUE_GREY_300,
+                            offset=Offset(0, 0),
+                            blur_style=ShadowBlurStyle.OUTER,
+                        )
                     ),
-                VerticalDivider(width=1),
-            ],
+                ],
                 expand=True,
             )
         )
         pg.page.update()
+        plt.close()

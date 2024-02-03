@@ -24,11 +24,19 @@ class Application:
             Row(
                 [
                 Container(
+                    border_radius=10,
                     content=SideBar(self.__vault, pg),
-                    ),
-                VerticalDivider(width=1),
+                    shadow=BoxShadow(
+                        spread_radius=1,
+                        blur_radius=15,
+                        color=colors.BLUE_GREY_300,
+                        offset=Offset(0, 0),
+                        blur_style=ShadowBlurStyle.OUTER,
+                    )
+                ),
             ],
                 expand=True,
             )
         )
         pg.page.update()
+        plt.close()

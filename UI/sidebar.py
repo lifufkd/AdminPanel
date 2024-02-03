@@ -154,6 +154,6 @@ class SideBar(UserControl):
                     self.ContainedIcon(icons.MEDICATION_LIQUID_SHARP, self.__buttonnames[10]),
                     Divider(height=5),
                     self.ContainedIcon(icons.LOGOUT_ROUNDED, self.__buttonnames[11]),
-                ]
+                ],
             ),
         )
