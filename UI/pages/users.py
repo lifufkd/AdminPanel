@@ -32,7 +32,7 @@ class User:
                             color=colors.BLUE_GREY_300,
                             offset=Offset(0, 0),
                             blur_style=ShadowBlurStyle.OUTER,
-                        )
+                        ),
                     ),
                 ],
                 expand=True,

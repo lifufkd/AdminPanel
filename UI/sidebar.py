@@ -61,7 +61,7 @@ class SideBar(UserControl):
             tooltip='Пользователь',
             content=Row(
                 controls=[
-                    Container(  # это квадрат с инициалами NT типа
+                    Container(  # это квадрат с инициалами
                         width=42,
                         height=42,
                         bgcolor='bluegrey900',

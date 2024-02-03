@@ -20,6 +20,7 @@ class Diagram(UserControl):
 
     def add_diagram(self, cont, data):
         fig, ax = plt.subplots()
+        plt.style.use('dark_background')
         fruits = [self.__content[cont][1], self.__content[cont][2], self.__content[cont][3]]
         counts = [data[0], data[1], data[2]]
         bar_colors = ["tab:red", "tab:blue", "tab:orange"]
