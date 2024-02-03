@@ -6,8 +6,6 @@
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
-
-
 #################################################
 
 
@@ -85,8 +83,7 @@ class application_ui(UserControl):
 
     def build(self):
         # ЗНАЧЕНИЯ#
-        btn_create = FilledButton(icon=icons.ADD, text='Создать',
-                                  width=130)  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
+        btn_create = FilledButton(icon=icons.ADD, text='Создать')  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
         pb = PopupMenuButton(
             items=[
                 PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт')
@@ -149,7 +146,7 @@ class Application:
                             offset=Offset(0, 0),
                             blur_style=ShadowBlurStyle.OUTER,
                         ),
-                                                                                                                                                                                                                                                                                                     )
+                    )
                 ],
                 expand=True,
             )
