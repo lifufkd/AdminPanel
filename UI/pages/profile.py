@@ -67,7 +67,9 @@ class ChangeProfile(UserControl):
 
     def build(self):
         #ЗНАЧЕНИЯ#
-        self.__user_name = TextField(label='Имя', on_change=self.validate)
+        self.__user_name = TextField(label='Фамилия', on_change=self.validate)
+        self.__middle_name = TextField(label='Имя', on_change=self.validate)
+        self.__last_name = TextField(label='Отчество', on_change=self.validate)
         self.__user_pass = TextField(label='Пароль', password=True, on_change=self.validate)
         self.__user_pass_confirm = TextField(label='Подтвердите пароль', password=True, on_change=self.validate)
         self.__user_login = TextField(label='Логин', on_change=self.validate)

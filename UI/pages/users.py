@@ -102,7 +102,7 @@ class Content(UserControl):
                         DataCell(Switch(value=cart[8], on_change=self.switchbnt)),
                         DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
                         DataCell(IconButton(icon=icons.DELETE, tooltip='Удалить')),
-                    ]
+                    ],
                 )
             )
         return carts
@@ -151,6 +151,7 @@ class user_ui(UserControl):
                         padding=padding.only(top=10, left=50),
                     ),
                 ],
+                scroll=ScrollMode.ALWAYS,
                 expand=True,
                 alignment=MainAxisAlignment.START,
             ),
