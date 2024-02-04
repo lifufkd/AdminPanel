@@ -57,6 +57,8 @@ class Content(UserControl):
         test = [['Артемьева №1 - 10.01.2024', 'Обычная заявка', 'ПМУ', 'Черновик', 'Не госпитализирован', 'В обработке',
                  '10.12.2023 18:34:25'],
                 ['Романовский №4 - 09.01.24', 'Обычная заявка', 'ПМУ', 'Черновик', 'Не госпитализирован', 'В обработке',
+                 '18.10.2023 19:21:10'], ['Романовский №4 - 09.01.24', 'Обычная заявка', 'ПМУ', 'Черновик', 'Не госпитализирован', 'В обработке',
+                 '18.10.2023 19:21:10'], ['Романовский №4 - 09.01.24', 'Обычная заявка', 'ПМУ', 'Черновик', 'Не госпитализирован', 'В обработке',
                  '18.10.2023 19:21:10']]
         for cart in test:
             carts.append(
@@ -71,6 +73,7 @@ class Content(UserControl):
                         DataCell(Text(cart[6])),
                         DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
                         DataCell(IconButton(icon=icons.DELETE, tooltip='Удалить')),
+
                     ]
                 )
             )
@@ -78,12 +81,19 @@ class Content(UserControl):
 
 
 class application_ui(UserControl):
-    def __init__(self):
+    def __init__(self, pg):
         super().__init__()
+        self.__pg=pg
+
+    def add(self, event):
+        self.__pg.navigator.navigate('applications_change_applications', self.__pg.page)
 
     def build(self):
         # ЗНАЧЕНИЯ#
-        btn_create = FilledButton(icon=icons.ADD, text='Создать')  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
+        btn_create = FilledButton(icon=icons.ADD, text='Создать', on_click=self.add)  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
+        btn_next_page1 = FilledButton(text='1', tooltip='thispage')
+        btn_next_page2 = FilledButton(text='2', tooltip='nextpage2')
+        btn_next_page3 = FilledButton(text='3', tooltip='nextpage3')
         pb = PopupMenuButton(
             items=[
                 PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт')
@@ -103,8 +113,13 @@ class application_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content()
-                    )
+                        content=Content(),
+                    ),
+                    Container(
+                        content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
+                        alignment=alignment.bottom_center,
+                        padding=padding.only(top=10, left=50),
+                    ),
                 ],
                 expand=True,
                 alignment=MainAxisAlignment.START,
@@ -121,6 +136,8 @@ class Application:
     def application(self, pg: PageData):
         pg.page.title = "Заявки"
         pg.page.theme_mode = 'dark'
+        pg.page.vertical_alignment = MainAxisAlignment.CENTER
+        pg.page.horizontal_alignment = CrossAxisAlignment.CENTER
         pg.page.add(
             Row(
                 [
@@ -138,7 +155,7 @@ class Application:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=application_ui(),
+                        content=application_ui(pg),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

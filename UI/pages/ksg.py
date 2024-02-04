@@ -77,13 +77,21 @@ class Content(UserControl):
 
 
 class ksg_ui(UserControl):
-    def __init__(self):
+    def __init__(self, pg):
         super().__init__()
+        self.__pg = pg
+
+    def add(self, event):
+        self.__pg.navigator.navigate('ksg_change_ksg', self.__pg.page)
+
 
     def build(self):
         # ЗНАЧЕНИЯ#
         btn_create = FilledButton(icon=icons.ADD,
-                                  text='Создать')  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
+                                  text='Создать', on_click=self.add)  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
+        btn_next_page1 = FilledButton(text='1', tooltip='thispage')
+        btn_next_page2 = FilledButton(text='2', tooltip='nextpage2')
+        btn_next_page3 = FilledButton(text='3', tooltip='nextpage3')
         pb = PopupMenuButton(
             items=[
                 PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт')
@@ -104,7 +112,12 @@ class ksg_ui(UserControl):
                     ),
                     Container(
                         content=Content()
-                    )
+                    ),
+                    Container(
+                        content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
+                        alignment=alignment.bottom_center,
+                        padding=padding.only(top=10, left=50),
+                    ),
                 ],
                 expand=True,
                 alignment=MainAxisAlignment.START,
@@ -137,7 +150,7 @@ class Ksg:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=ksg_ui(),
+                        content=ksg_ui(pg),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

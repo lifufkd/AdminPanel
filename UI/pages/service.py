@@ -71,13 +71,17 @@ class Content(UserControl):
 
 
 class service_ui(UserControl):
-    def __init__(self):
+    def __init__(self, pg):
         super().__init__()
+        self.__pg = pg
+
+    def add(self, event):
+        self.__pg.navigator.navigate('service_change_service', self.__pg.page)
 
     def build(self):
         # ЗНАЧЕНИЯ#
         btn_create = FilledButton(icon=icons.ADD,
-                                  text='Создать')  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
+                                  text='Создать', on_click=self.add)  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
         pb = PopupMenuButton(
             items=[
                 PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт')
@@ -131,7 +135,7 @@ class Service:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=service_ui(),
+                        content=service_ui(pg),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

@@ -6,73 +6,25 @@
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
-from modules.utilites import update_profile
 
 
 #################################################
 
 
 class ChangeProfile(UserControl):
-    def __init__(self, pg, db, vault):
+    def __init__(self):
         super().__init__()
-        self.__dlg_modal = None
-        self.__last_name = None
-        self.__middle_name = None
-        self.__user_name = None
-        self.__user_pass = None
-        self.__user_pass_confirm = None
-        self.__user_login = None
-        self.__btn_save = None
-        self.__pg = pg
-        self.__db = db
-        self.__vault = vault
-        self.__user_info = pg.page.session.get(self.__vault[0])
-        print(self.__user_info)
 
-    def savechanges(self, event):
-        if self.__user_pass.value == self.__user_pass_confirm.value:
-            update_profile([self.__user_login.value, [self.__user_name.value, self.__middle_name.value, self.__last_name.value], self.__user_pass.value], self.__user_info, self.__db)
-        else:
-            self.open_dlg_modal(None)
-
-    def close_dlg(self, e):
-        self.__dlg_modal.open = False
-        self.__pg.page.update()
-
-    def open_dlg_modal(self, e):
-        self.dlg_modal()
-        self.__pg.page.dialog = self.__dlg_modal
-        self.__dlg_modal.open = True
-        self.__pg.page.update()
-
-    def validate(self, event):
-        if (self.__user_name.value + self.__user_pass.value + self.__user_pass_confirm.value + self.__user_login.value + self.__middle_name.value + self.__last_name.value) != '':
-            self.__btn_save.disabled = False
-        else:
-            self.__btn_save.disabled = True
-        self.__pg.page.update()
-
-    def dlg_modal(self):
-        self.__dlg_modal = AlertDialog(
-            modal=True,
-            title=Text("Введенные пароли не совпадают"),
-            content=Text("Повторите попытку"),
-            actions=[
-                TextButton("Ok", on_click=self.close_dlg),
-            ],
-            actions_alignment=MainAxisAlignment.END,
-        )
+    def savechanges(self):
+        pass
 
     def build(self):
         #ЗНАЧЕНИЯ#
-        self.__user_name = TextField(label=self.__user_info[1][0], on_change=self.validate)
-        self.__middle_name = TextField(label=self.__user_info[1][1], on_change=self.validate)
-        self.__last_name = TextField(label=self.__user_info[1][2], on_change=self.validate)
-        self.__user_pass = TextField(label='Пароль', password=True, on_change=self.validate)
-        self.__user_pass_confirm = TextField(label='Подтвердите пароль', password=True, on_change=self.validate)
-        self.__user_login = TextField(label=self.__user_info[0], on_change=self.validate)
-        self.__btn_save = OutlinedButton(text='Сохранить', width=200, on_click=self.savechanges)
-        # title_text = Text(value='Профиль', size=15),
+        user_name = TextField(label='Имя', value='First Name') #имя пользователя уже подставленное (подставить значение value='text')
+        user_pass = TextField(label='Пароль', password=True)
+        user_pass_confirm = TextField(label='Подтвердите пароль', password=True)
+        user_login = TextField(label='Логин', value='Логин') #логин уже подставленный
+        btn_save = OutlinedButton(text='Сохранить', width=200, on_click=self.savechanges)
 
         return Container(
             height=1500,
@@ -84,31 +36,23 @@ class ChangeProfile(UserControl):
                     ),
                     Container(
                         padding=padding.only(left=60, right=60),
-                        content=self.__user_name
+                        content=user_name
                     ),
                     Container(
                         padding=padding.only(left=60, right=60),
-                        content=self.__middle_name
+                        content=user_login
                     ),
                     Container(
                         padding=padding.only(left=60, right=60),
-                        content=self.__last_name
+                        content=user_pass
                     ),
                     Container(
                         padding=padding.only(left=60, right=60),
-                        content=self.__user_login
+                        content=user_pass_confirm
                     ),
                     Container(
                         padding=padding.only(left=60, right=60),
-                        content=self.__user_pass
-                    ),
-                    Container(
-                        padding=padding.only(left=60, right=60),
-                        content=self.__user_pass_confirm
-                    ),
-                    Container(
-                        padding=padding.only(left=60, right=60),
-                        content=self.__btn_save,
+                        content=btn_save,
                     ),
                 ],
                 expand=True,
@@ -122,7 +66,6 @@ class Profile:
         super(Profile, self).__init__()
         self.__vault = vault
         self.__config = config
-        self.__db = db
 
     def profile(self, pg: PageData):
         pg.page.title = "Профиль"
@@ -144,7 +87,7 @@ class Profile:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=ChangeProfile(pg, self.__db, self.__vault),
+                        content=ChangeProfile(),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

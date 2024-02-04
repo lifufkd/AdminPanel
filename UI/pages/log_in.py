@@ -108,7 +108,3 @@ class Log_in:
                 alignment=ft.MainAxisAlignment.CENTER
             )
         )
-
-
-
-

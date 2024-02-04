@@ -72,13 +72,20 @@ class Content(UserControl):
 
 
 class mkb_ui(UserControl):
-    def __init__(self):
+    def __init__(self, pg):
         super().__init__()
+        self.__pg = pg
+
+    def add(self, event):
+        self.__pg.navigator.navigate('mkb_change_mkb', self.__pg.page)
 
     def build(self):
         # ЗНАЧЕНИЯ#
         btn_create = FilledButton(icon=icons.ADD,
-                                  text='Создать')  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
+                                  text='Создать', on_click=self.add)  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
+        btn_next_page1 = FilledButton(text='1', tooltip='thispage')
+        btn_next_page2 = FilledButton(text='2', tooltip='nextpage2')
+        btn_next_page3 = FilledButton(text='3', tooltip='nextpage3')
         pb = PopupMenuButton(
             items=[
                 PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт')
@@ -99,7 +106,12 @@ class mkb_ui(UserControl):
                     ),
                     Container(
                         content=Content()
-                    )
+                    ),
+                    Container(
+                        content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
+                        alignment=alignment.bottom_center,
+                        padding=padding.only(top=10, left=50),
+                    ),
                 ],
                 expand=True,
                 alignment=MainAxisAlignment.START,
@@ -131,7 +143,7 @@ class Mkb:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=mkb_ui(),
+                        content=mkb_ui(pg),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,
