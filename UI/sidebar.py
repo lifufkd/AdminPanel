@@ -147,7 +147,7 @@ class SideBar(UserControl):
                     self.ContainedIcon(icons.MEDICAL_SERVICES_OUTLINED, self.__buttonnames[5]),
                     self.ContainedIcon(icons.MEDICAL_SERVICES_OUTLINED, self.__buttonnames[6]),
                     self.ContainedIcon(icons.ATTACH_MONEY, self.__buttonnames[4]),
-                    #self.ContainedIcon(icons.ATM_ROUNDED, self.__buttonnames[7]),
+                    self.ContainedIcon(icons.ATM_ROUNDED, self.__buttonnames[7]),
                     Divider(height=5),
                     self.ContainedIcon(icons.AREA_CHART_OUTLINED, self.__buttonnames[8]),
                     self.ContainedIcon(icons.AREA_CHART, self.__buttonnames[9]),

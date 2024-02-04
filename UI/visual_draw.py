@@ -25,7 +25,7 @@ class UI:
         self.__profile = profile.Profile(self.__vault_keys, config, db)
         self.__ksg = ksg.Ksg(self.__vault_keys, config, db)
         self.__mkb = mkb.Mkb(self.__vault_keys, config, db)
-        #self.__ratio = ratio.Ratio(self.__vault_keys, config, db)
+        self.__ratio = ratio.Ratio(self.__vault_keys, config, db)
         self.__region = region.Region(self.__vault_keys, config, db)
         self.__area = area.Area(self.__vault_keys, config, db)
         self.__med_profile = med_profile.Med_profile(self.__vault_keys, config, db)
@@ -49,7 +49,7 @@ class UI:
                 'application': self.__application.application,
                 'clinic': self.__clinic.clinic,
                 'profile': self.__profile.profile,
-                #'ratio': self.__ratio.ratio,
+                'ratio': self.__ratio.ratio,
                 'ksg': self.__ksg.ksg,
                 'mkb': self.__mkb.mkb,
                 'region': self.__region.region,

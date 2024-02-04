@@ -5,18 +5,18 @@
 #################################################
 from flet import *
 import matplotlib.pyplot as plt
-from modules.utilites import word_wrap
+
+from modules.load_data import LoadData
+from modules.utilites import word_wrap, save_export_xlsx
 from flet_navigator import PageData
 from UI.sidebar import SideBar
 #################################################
 
 
 class Content(UserControl):
-    def __init__(self, db):
+    def __init__(self, load_data):
         super().__init__()
-        self.__db = db
-        self.__c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
-        self.__max_len = 400  # перенос слов по 15 символов
+        self.__load_data = load_data
 
     def build(self):
         return (Container
@@ -57,19 +57,7 @@ class Content(UserControl):
 
     def generate_carts(self):
         carts = list()
-        data = list()
-        raw_data = self.__db.get_data(
-            f'SELECT title, id FROM region ORDER BY title DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
-            ())
-        for rows in raw_data:
-            l1 = []
-            for row in range(len(rows)):
-                if row == 1:
-                    l1.append(self.__db.get_quantity('area', ['region', rows[1]]))
-                else:
-                    l1.append(word_wrap(rows[row], self.__max_len))
-            data.append(l1)
-        for cart in data:
+        for cart in self.__load_data.region():
             carts.append(
                 DataRow(
                     cells=[
@@ -84,13 +72,17 @@ class Content(UserControl):
 
 
 class region_ui(UserControl):
-    def __init__(self, pg, db):
+    def __init__(self, pg, load_data, config):
         super().__init__()
         self.__pg = pg
-        self.__db = db
+        self.__config = config
+        self.__load_data = load_data
 
     def add(self, event):
         self.__pg.navigator.navigate('region_change_region', self.__pg.page)
+
+    def create_export(self, event):
+        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'region')
 
     def build(self):
         # ЗНАЧЕНИЯ#
@@ -101,7 +93,7 @@ class region_ui(UserControl):
         btn_next_page3 = FilledButton(text='3', tooltip='nextpage3')
         pb = PopupMenuButton(
             items=[
-                PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт')
+                PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт', on_click=self.create_export)
             ]
         )
 
@@ -114,7 +106,11 @@ class region_ui(UserControl):
                         padding=padding.only(left=60, right=60, top=20)
                     ),
                     Container(
-                        content=Content(self.__db)
+                        content=Row([btn_create, pb]),
+                        padding=padding.only(left=50, top=10)
+                    ),
+                    Container(
+                        content=Content(self.__load_data)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -134,6 +130,7 @@ class Region:
         self.__vault = vault
         self.__config = config
         self.__db = db
+        self.__load_data = LoadData(db)
 
     def region(self, pg: PageData):
         pg.page.title = "Регионы"
@@ -155,7 +152,7 @@ class Region:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=region_ui(pg, self.__db),
+                        content=region_ui(pg, self.__load_data, self.__config),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

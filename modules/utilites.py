@@ -6,6 +6,8 @@
 import datetime
 import json
 import parawrap
+import xlwt
+from time import gmtime, strftime
 ############static variables#####################
 
 #################################################
@@ -66,6 +68,25 @@ def word_wrap(text, max_len):
     for i in data:
         s += i + '\n'
     return s
+
+
+def save_export_xlsx(path, data, typ):
+    workbook = xlwt.Workbook()
+    sheet = workbook.add_sheet("Sheet")
+    for i in range(len(data)):
+        for j in range(len(data[i])):
+            sheet.write(i, j, data[i][j])
+    workbook.save(path + f'export_{typ}({strftime("%Y_%m_%d_%H_%M_%S", gmtime())}).xlsx')
+
+
+def switch_btns_user(data, value, db):
+    fields = {'1': 'agent', '2': 'blocked'}
+    db.add_db_entry(f'UPDATE users SET {fields[data[1]]} = {value} WHERE id = "{data[0]}"', ())
+
+
+def switch_btns_ksg(data, value, db):
+    db.add_db_entry(f'UPDATE ksg SET ratio_switch = {value} WHERE id = "{data}"', ())
+
 
 
 

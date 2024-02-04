@@ -6,17 +6,17 @@
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
-from modules.utilites import word_wrap, unparse_json
+from modules.load_data import LoadData
+from modules.utilites import save_export_xlsx, switch_btns_user
 
 #################################################
 
 
 class Content(UserControl):
-    def __init__(self, db):
+    def __init__(self, load_data, db):
         super().__init__()
+        self.__load_data = load_data
         self.__db = db
-        self.__c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
-        self.__max_len = 30  # перенос слов по 15 символов
 
     def build(self):
         return (Container
@@ -59,35 +59,12 @@ class Content(UserControl):
         )
         )
 
-    def switchbnt(self):
-        pass
+    def switchbnt(self, e):
+        switch_btns_user(e.control.tooltip.split(':'), e.control.value, self.__db)
 
     def generate_carts(self):
         carts = list()
-        roles = {0: 'Администратор', 1: 'Модератор', 2: 'Куратор', 3: 'Пользователь'}
-        data = list()
-        raw_data = self.__db.get_data(
-            f'SELECT id, role, full_name, photo, date_create, email, phone_number, agent, blocked FROM users ORDER BY id DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
-            ())
-        for rows in raw_data:
-            l1 = []
-            for row in range(len(rows)):
-                if row == 1:
-                    l1.append(roles[row])
-                elif row == 2:
-                    fio = unparse_json(rows[row])
-                    l1.append(f'{fio[0]}\n{fio[1]}\n{fio[2]}')
-                elif row == 4:
-                    l1.append(rows[row].strftime('%Y-%m-%d %H:%M:%S'))
-                elif row in [7, 8]:
-                    if rows[row] == 1:
-                        l1.append(True)
-                    else:
-                        l1.append(False)
-                else:
-                    l1.append(rows[row])
-            data.append(l1)
-        for cart in data:
+        for cart in self.__load_data.users():
             carts.append(
                 DataRow(
                     cells=[
@@ -98,8 +75,8 @@ class Content(UserControl):
                         DataCell(Text(cart[4])),
                         DataCell(Text(cart[5])),
                         DataCell(Text(cart[6])),
-                        DataCell(Switch(value=cart[7], on_change=self.switchbnt)),
-                        DataCell(Switch(value=cart[8], on_change=self.switchbnt)),
+                        DataCell(Switch(value=cart[7], on_change=self.switchbnt, tooltip=f'{cart[0]}:1')),
+                        DataCell(Switch(value=cart[8], on_change=self.switchbnt, tooltip=f'{cart[0]}:2')),
                         DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
                         DataCell(IconButton(icon=icons.DELETE, tooltip='Удалить')),
                     ],
@@ -109,13 +86,18 @@ class Content(UserControl):
 
 
 class user_ui(UserControl):
-    def __init__(self, pg, db):
+    def __init__(self, pg, load_data, config, db):
         super().__init__()
         self.__pg = pg
+        self.__load_data = load_data
+        self.__config = config
         self.__db = db
 
     def add(self, event):
         self.__pg.navigator.navigate('users_change_users', self.__pg.page)
+
+    def create_export(self, event):
+        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'users')
 
     def build(self):
         # ЗНАЧЕНИЯ#
@@ -126,7 +108,7 @@ class user_ui(UserControl):
         btn_next_page3 = FilledButton(text='3', tooltip='nextpage3')
         pb = PopupMenuButton(
             items=[
-                PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт')
+                PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт', on_click=self.create_export)
             ]
         )
 
@@ -143,7 +125,7 @@ class user_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content(self.__db)
+                        content=Content(self.__load_data, self.__db)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -164,6 +146,7 @@ class User:
         self.__vault = vault
         self.__config = config
         self.__db = db
+        self.__load_data = LoadData(db)
 
     def user(self, pg: PageData):
         pg.page.title = "Пользователи"
@@ -185,7 +168,7 @@ class User:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=user_ui(pg, self.__db),
+                        content=user_ui(pg, self.__load_data, self.__config, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

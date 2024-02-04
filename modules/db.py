@@ -167,7 +167,7 @@ class DB:
         self.__db.commit()
 
     def authorization(self, login, password):
-        self.__cursor.execute(f'SELECT login, full_name, email, photo, id, password FROM users WHERE login = "{login}" AND password = "{password}" AND role = "0"')
+        self.__cursor.execute(f'SELECT login, full_name, email, photo, id, password FROM users WHERE login = "{login}" AND password = "{password}" AND role = "0" AND blocked = "0"')
         user_data = self.__cursor.fetchone()
         if user_data is not None:
             return list(user_data)

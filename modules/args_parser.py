@@ -15,7 +15,7 @@ class Parser:
     def __init__(self, file_path):
         super(Parser, self).__init__()
         self.__file_path = file_path
-        self.__default = {'db_name': '', 'db_host': '', 'db_user': '', 'db_passwd': '', 'logo_path': ''}
+        self.__default = {'db_name': '', 'db_host': '', 'db_user': '', 'db_passwd': '', 'logo_path': '', 'export_xlsx_path': ''}
         self.__current_config = None
         self.parse_args()
 

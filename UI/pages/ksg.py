@@ -6,14 +6,17 @@
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
-from modules.utilites import word_wrap
+from modules.load_data import LoadData
+from modules.utilites import save_export_xlsx, switch_btns_ksg
+
+
 #################################################
 class Content(UserControl):
-    def __init__(self, db):
+    def __init__(self, load_data, db):
         super().__init__()
+        self.__load_data = load_data
         self.__db = db
-        self.__c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
-        self.__max_len = 30  # перенос слов по 15 символов
+
     def build(self):
         return (Container
             (
@@ -53,39 +56,19 @@ class Content(UserControl):
         )
         )
 
-    def switchbnt(self):
-        pass
+    def switchbnt(self, e):
+        switch_btns_ksg(e.control.tooltip, e.control.value, self.__db)
 
     def generate_carts(self):
         carts = list()
-        data = list()
-        pointer = {4: ['relative_ksg_mkb', 'id_ksg'], 5: ['relative_ksg_service', 'id_ksg'], 6: ['relative_ksg_med_profile', 'id_ksg']}
-        raw_data = self.__db.get_data(
-            f'SELECT code, title, price, ratio_switch, id FROM ksg ORDER BY code DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
-            ())
-        for rows in raw_data:
-            l1 = []
-            for row in range(len(rows) + 2):
-                if row == 3:
-                    if rows[row] == 1:
-                        l1.append(True)
-                    else:
-                        l1.append(False)
-                elif row in pointer:
-                    l1.append(self.__db.get_quantity(pointer[row][0], [pointer[row][1], rows[4]]))
-                elif row == 2:
-                    l1.append(rows[row])
-                else:
-                    l1.append(word_wrap(rows[row], self.__max_len))
-            data.append(l1)
-        for cart in data:
+        for cart in self.__load_data.ksg():
             carts.append(
                 DataRow(
                     cells=[
                         DataCell(Text(cart[0])),
                         DataCell(Text(cart[1])),
                         DataCell(Text(cart[2])),
-                        DataCell(Switch(value=cart[3], on_change=self.switchbnt())),
+                        DataCell(Switch(value=cart[3], on_change=self.switchbnt, tooltip=cart[7])),
                         DataCell(Text(cart[4])),
                         DataCell(Text(cart[5])),
                         DataCell(Text(cart[6])),
@@ -98,14 +81,18 @@ class Content(UserControl):
 
 
 class ksg_ui(UserControl):
-    def __init__(self, pg, db):
+    def __init__(self, pg, load_data, config, db):
         super().__init__()
         self.__pg = pg
+        self.__load_data = load_data
+        self.__config = config
         self.__db = db
 
     def add(self, event):
         self.__pg.navigator.navigate('ksg_change_ksg', self.__pg.page)
 
+    def create_export(self, event):
+        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'ksg')
 
     def build(self):
         # ЗНАЧЕНИЯ#
@@ -116,7 +103,7 @@ class ksg_ui(UserControl):
         btn_next_page3 = FilledButton(text='3', tooltip='nextpage3')
         pb = PopupMenuButton(
             items=[
-                PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт')
+                PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт', on_click=self.create_export)
             ]
         )
 
@@ -133,7 +120,7 @@ class ksg_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content(self.__db)
+                        content=Content(self.__load_data, self.__db)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -152,6 +139,7 @@ class Ksg:
         self.__vault = vault
         self.__config = config
         self.__db = db
+        self.__load_data = LoadData(db)
 
     def ksg(self, pg: PageData):
         pg.page.title = "КСГ"
@@ -173,7 +161,7 @@ class Ksg:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=ksg_ui(pg, self.__db),
+                        content=ksg_ui(pg, self.__load_data, self.__config, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,
