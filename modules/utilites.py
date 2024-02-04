@@ -5,6 +5,7 @@
 #################################################
 import datetime
 import json
+import parawrap
 ############static variables#####################
 
 #################################################
@@ -57,5 +58,14 @@ def update_profile(new_data, old_data, db):
     for i in range(3):
         out.insert(i + 2, old_data[i + 2])
     return out
+
+
+def word_wrap(text, max_len):
+    s = ''
+    data = parawrap.wrap(text, max_len)
+    for i in data:
+        s += i + '\n'
+    return s
+
 
 

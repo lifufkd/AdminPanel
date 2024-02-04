@@ -6,11 +6,16 @@
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
+from modules.utilites import unparse_json, word_wrap
 #################################################
 
+
 class Content(UserControl):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
+        self.__db = db
+        self.__c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
+        self.__max_len = 30 # перенос слов по 15 символов
 
     def build(self):
         return (Container
@@ -43,7 +48,9 @@ class Content(UserControl):
                             ],
                             rows=self.generate_carts()
                         )
-                    ]
+                    ],
+                    spacing=-5,
+
                 )
             )
         )
@@ -51,9 +58,22 @@ class Content(UserControl):
 
     def generate_carts(self):
         carts = list()
-        test = [['ЧУЗ "КБ "РЖД-Медицина" г. Красноярск', 'Травматология и ортопедия', 'https://dkb24.ru/', '+7 (391) 229-22-22', 'info@med54.ru'],
-                ['ЧУЗ "КБ "РЖД-Медицина" г. Новосибирск', 'Травматология и ортопедия\nСердечно-сосудистая хирургия\nУрология\nОнкология', 'https://novosibirsk.rzd-medicine.ru/', '+7 (383) 328-19-19', 'info@med54.ru']]
-        for cart in test:
+        data = list()
+        raw_data = self.__db.get_data(
+            f'SELECT name, med_profiles, site, phone_number, email FROM hospital ORDER BY name DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
+            ())
+        for rows in raw_data:
+            l1 = []
+            for row in range(len(rows)):
+                if row == 1:
+                    profiles = ''
+                    for item in unparse_json(rows[row]):
+                        profiles += self.__db.get_data(f'SELECT med_profile FROM med_profile WHERE id = {item}', ())[0][0] + ', '
+                    l1.append(word_wrap(profiles, self.__max_len))
+                else:
+                    l1.append(word_wrap(rows[row], self.__max_len))
+            data.append(l1)
+        for cart in data:
             carts.append(
                 DataRow(
                     cells=[
@@ -71,9 +91,10 @@ class Content(UserControl):
 
 
 class clinics_ui(UserControl):
-    def __init__(self, pg):
+    def __init__(self, pg, db):
         super().__init__()
         self.__pg = pg
+        self.__db = db
 
     def add(self, event):
         self.__pg.navigator.navigate('clinics_change_clinics', self.__pg.page)
@@ -104,7 +125,7 @@ class clinics_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content()
+                        content=Content(self.__db)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -121,6 +142,7 @@ class Clinic:
         super(Clinic, self).__init__()
         self.__vault = vault
         self.__config = config
+        self.__db = db
 
     def clinic(self, pg: PageData):
         pg.page.title = "Клиники"
@@ -142,7 +164,7 @@ class Clinic:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=clinics_ui(pg),
+                        content=clinics_ui(pg, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

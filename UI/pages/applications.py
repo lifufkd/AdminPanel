@@ -6,12 +6,15 @@
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
+import datetime
 #################################################
 
 
 class Content(UserControl):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
+        self.__db = db
+        self.__c_page = 1 # выбор страницы, в поле ввода по умолчанию поставить .value = 1
 
     def build(self):
         return (Container
@@ -54,13 +57,22 @@ class Content(UserControl):
 
     def generate_carts(self):
         carts = list()
-        test = [['Артемьева №1 - 10.01.2024', 'Обычная заявка', 'ПМУ', 'Черновик', 'Не госпитализирован', 'В обработке',
-                 '10.12.2023 18:34:25'],
-                ['Романовский №4 - 09.01.24', 'Обычная заявка', 'ПМУ', 'Черновик', 'Не госпитализирован', 'В обработке',
-                 '18.10.2023 19:21:10'], ['Романовский №4 - 09.01.24', 'Обычная заявка', 'ПМУ', 'Черновик', 'Не госпитализирован', 'В обработке',
-                 '18.10.2023 19:21:10'], ['Романовский №4 - 09.01.24', 'Обычная заявка', 'ПМУ', 'Черновик', 'Не госпитализирован', 'В обработке',
-                 '18.10.2023 19:21:10']]
-        for cart in test:
+        data = list()
+        pointer = {1: 'application_type', 2: 'payment_type', 3: 'application_status', 4: 'hospitalized', 5: 'benefit_status', 6: 'date_format'}
+        raw_data = self.__db.get_data(f'SELECT number, application_type, payment_type, application_status, hospitalized, status, date_create FROM application ORDER BY date_create DESC LIMIT 15 OFFSET {(self.__c_page-1)*15}', ())
+        for rows in raw_data:
+            l1 = []
+            for row in range(len(rows)):
+                if row in pointer.keys():
+                    if row == 6:
+                        l1.append(rows[row].strftime('%Y-%m-%d %H:%M:%S'))
+                        print(l1)
+                    else:
+                        l1.append(self.__db.get_data(f'SELECT title FROM {pointer[row]} WHERE id = {rows[row]}', ())[0][0])
+                else:
+                    l1.append(rows[row])
+            data.append(l1)
+        for cart in data:
             carts.append(
                 DataRow(
                     cells=[
@@ -81,9 +93,10 @@ class Content(UserControl):
 
 
 class application_ui(UserControl):
-    def __init__(self, pg):
+    def __init__(self, pg, db):
         super().__init__()
-        self.__pg=pg
+        self.__pg = pg
+        self.__db = db
 
     def add(self, event):
         self.__pg.navigator.navigate('applications_change_applications', self.__pg.page)
@@ -113,7 +126,7 @@ class application_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content(),
+                        content=Content(self.__db),
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -132,6 +145,7 @@ class Application:
         super(Application, self).__init__()
         self.__vault = vault
         self.__config = config
+        self.__db = db
 
     def application(self, pg: PageData):
         pg.page.title = "Заявки"
@@ -155,7 +169,7 @@ class Application:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=application_ui(pg),
+                        content=application_ui(pg, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

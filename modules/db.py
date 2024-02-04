@@ -56,14 +56,18 @@ class DB:
             file LONGTEXT, # JSON massive with blobs
             price INT,
             application_author INT, # внешний ключ
-            hospitalized BOOL,
+            hospitalized INT,
             hospital INT, # внешний ключ
             ratio DECIMAL(7,2),
             status INT, # внешний ключ
-            date_create DATE,
-            date_notice DATE,
-            date_hospitalized DATE,
-            date_close DATE
+            date_create DATETIME,
+            date_notice DATETIME,
+            date_hospitalized DATETIME,
+            date_close DATETIME
+        );
+        CREATE TABLE IF NOT EXISTS hospitalized(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title TEXT
         );
         CREATE TABLE IF NOT EXISTS hospital(
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -73,7 +77,7 @@ class DB:
             ratio INT, # Из ratio_settings
             base_rate INT,
             site TEXT,
-            phone_number INT,
+            phone_number TEXT,
             email VARCHAR(255),
             other_contact TEXT, # JSON 2d massive
             region INT, # внешний ключ
@@ -159,4 +163,8 @@ class DB:
         else:
             self.__cursor.execute(f'SELECT count(*) FROM {table}')
         return list(self.__cursor.fetchone())[0]
+
+    def get_data(self, query, var):
+        self.__cursor.execute(query, var)
+        return list(self.__cursor.fetchall())
 
