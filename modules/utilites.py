@@ -36,21 +36,26 @@ def parse_json(data):
 
 
 def update_profile(new_data, old_data, db):
-    print(old_data[4])
     out = list()
-    f_old = old_data[0:2] + [old_data[4]]
+    f_old = old_data[0:2] + [old_data[5]]
     compare = {0: 'login', 1: 'full_name', 2: 'password'}
     for diff in range(len(new_data)):
         if diff == 1:
+            out.append([])
             for i in range(len(new_data[diff])):
                 if new_data[diff][i] != '':
-                    out.append(new_data[diff][i])
+                    out[diff].append(new_data[diff][i])
                 else:
-                    out.append(f_old[diff][i])
-            db.add_db_entry(f'UPDATE users SET %s = "{parse_json(out)}" WHERE id = %s', [compare[diff], old_data[5]])
+                    out[diff].append(f_old[diff][i])
+            db.add_db_entry(f'UPDATE users SET {compare[diff]} = %s WHERE id = {old_data[4]}', (parse_json(out[diff]), ))
         else:
             if new_data[diff] != '':
-                pass
-                #db.add_db_entry(f'UPDATE users SET {compare[diff]} = "{new_data[diff]}" WHERE id = "{old_data[5]}"', ())
+                out.append(new_data[diff])
+                db.add_db_entry(f'UPDATE users SET {compare[diff]} = %s WHERE id = %s', (new_data[diff], old_data[5]))
+            else:
+                out.append(f_old[diff])
+    for i in range(3):
+        out.insert(i + 2, old_data[i + 2])
+    return out
 
 
