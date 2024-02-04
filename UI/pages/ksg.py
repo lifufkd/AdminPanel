@@ -8,9 +8,9 @@ from flet_navigator import PageData
 from UI.sidebar import SideBar
 #################################################
 class Content(UserControl):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
-
+        self.__db = db
     def build(self):
         return (Container
             (
@@ -55,6 +55,22 @@ class Content(UserControl):
 
     def generate_carts(self):
         carts = list()
+        data = list()
+        raw_data = self.__db.get_data(
+            f'SELECT name, med_profiles, site, phone_number, email FROM hospital ORDER BY name DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
+            ())
+        for rows in raw_data:
+            l1 = []
+            for row in range(len(rows)):
+                if row == 1:
+                    profiles = ''
+                    for item in unparse_json(rows[row]):
+                        profiles += self.__db.get_data(f'SELECT med_profile FROM med_profile WHERE id = {item}', ())[0][
+                                        0] + ', '
+                    l1.append(word_wrap(profiles, self.__max_len))
+                else:
+                    l1.append(word_wrap(rows[row], self.__max_len))
+            data.append(l1)
         test = [['st38.001', 'Соматические заболевания, осложненные старческой астенией', '8263', '192', '0', '1'],
                 ['st37.026', 'Продолжительная медицинская реабилитация пациентов с\nзаболеваниями центральной нервной системы и с\nзаболеваниями опорно-двигательного аппарата и\nпериферической нервной системы (сестринский уход)', '32988', '0', '7','1']]
         for cart in test:
@@ -77,9 +93,10 @@ class Content(UserControl):
 
 
 class ksg_ui(UserControl):
-    def __init__(self, pg):
+    def __init__(self, pg, db):
         super().__init__()
         self.__pg = pg
+        self.__db = db
 
     def add(self, event):
         self.__pg.navigator.navigate('ksg_change_ksg', self.__pg.page)
@@ -111,7 +128,7 @@ class ksg_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content()
+                        content=Content(self.__db)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -129,6 +146,7 @@ class Ksg:
         super(Ksg, self).__init__()
         self.__vault = vault
         self.__config = config
+        self.__db = db
 
     def ksg(self, pg: PageData):
         pg.page.title = "КСГ"
@@ -150,7 +168,7 @@ class Ksg:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=ksg_ui(pg),
+                        content=ksg_ui(pg, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

@@ -96,7 +96,8 @@ class DB:
             code VARCHAR(255),
             title TEXT,
             price INT,
-            ratio TEXT, # JSON massive with (Коэффициент затрат, Коэффициенты специфики, Коэффициент уровня, Доля ЗП и прочих расходов, switch (Коэффициент уровня мед учреждения))
+            ratio TEXT, # JSON massive with (Коэффициент затрат, Коэффициенты специфики, Коэффициент уровня, Доля ЗП и прочих расходов),
+            ratio_switch BOOL,
             mkb TEXT # внешние ключи в JSON
         );
         CREATE TABLE IF NOT EXISTS mkb(
