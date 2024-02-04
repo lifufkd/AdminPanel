@@ -7,6 +7,7 @@ from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
 import datetime
+from modules.utilites import word_wrap
 #################################################
 
 
@@ -15,6 +16,7 @@ class Content(UserControl):
         super().__init__()
         self.__db = db
         self.__c_page = 1 # выбор страницы, в поле ввода по умолчанию поставить .value = 1
+        self.__max_len = 30  # перенос слов по 15 символов
 
     def build(self):
         return (Container
@@ -66,11 +68,10 @@ class Content(UserControl):
                 if row in pointer.keys():
                     if row == 6:
                         l1.append(rows[row].strftime('%Y-%m-%d %H:%M:%S'))
-                        print(l1)
                     else:
-                        l1.append(self.__db.get_data(f'SELECT title FROM {pointer[row]} WHERE id = {rows[row]}', ())[0][0])
+                        l1.append(word_wrap(self.__db.get_data(f'SELECT title FROM {pointer[row]} WHERE id = {rows[row]}', ())[0][0], self.__max_len))
                 else:
-                    l1.append(rows[row])
+                    l1.append(word_wrap(rows[row], self.__max_len))
             data.append(l1)
         for cart in data:
             carts.append(

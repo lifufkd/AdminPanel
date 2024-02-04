@@ -32,9 +32,9 @@ class DB:
             role INT, # 0 - admin, 1 - moderator, 2 - curator, 3 - user
             full_name JSON, # JSON massive (имя, фамилия, отчество)
             photo MEDIUMBLOB,
-            date_create DATE,
+            date_create DATETIME,
             email VARCHAR(255),
-            phone_number INT,
+            phone_number TEXT,
             region INT, # внешний ключ
             area INT, # внешний ключ
             agent BOOL,

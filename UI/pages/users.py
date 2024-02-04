@@ -6,13 +6,17 @@
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
-
+from modules.utilites import word_wrap, unparse_json
 
 #################################################
 
+
 class Content(UserControl):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
+        self.__db = db
+        self.__c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
+        self.__max_len = 30  # перенос слов по 15 символов
 
     def build(self):
         return (Container
@@ -60,10 +64,30 @@ class Content(UserControl):
 
     def generate_carts(self):
         carts = list()
-        test = [['30', 'Пользователь', 'Уолтер Белый Черный', ' ', '19.06.1999', 'yoltermet@gmail.com', '+76546464463'],
-                ['29', 'Пользователь', 'Сол Гудман Олегович', ' ', '23.13.2025', 'solgoodman@gmail.com',
-                 '+79349754302']]
-        for cart in test:
+        roles = {0: 'Администратор', 1: 'Модератор', 2: 'Куратор', 3: 'Пользователь'}
+        data = list()
+        raw_data = self.__db.get_data(
+            f'SELECT id, role, full_name, photo, date_create, email, phone_number, agent, blocked FROM users ORDER BY id DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
+            ())
+        for rows in raw_data:
+            l1 = []
+            for row in range(len(rows)):
+                if row == 1:
+                    l1.append(roles[row])
+                elif row == 2:
+                    fio = unparse_json(rows[row])
+                    l1.append(f'{fio[0]}\n{fio[1]}\n{fio[2]}')
+                elif row == 4:
+                    l1.append(rows[row].strftime('%Y-%m-%d %H:%M:%S'))
+                elif row in [7, 8]:
+                    if rows[row] == 1:
+                        l1.append(True)
+                    else:
+                        l1.append(False)
+                else:
+                    l1.append(rows[row])
+            data.append(l1)
+        for cart in data:
             carts.append(
                 DataRow(
                     cells=[
@@ -74,8 +98,8 @@ class Content(UserControl):
                         DataCell(Text(cart[4])),
                         DataCell(Text(cart[5])),
                         DataCell(Text(cart[6])),
-                        DataCell(Switch(value=False, on_change=self.switchbnt())),
-                        DataCell(Switch(value=False, on_change=self.switchbnt())),
+                        DataCell(Switch(value=cart[7], on_change=self.switchbnt)),
+                        DataCell(Switch(value=cart[8], on_change=self.switchbnt)),
                         DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
                         DataCell(IconButton(icon=icons.DELETE, tooltip='Удалить')),
                     ]
@@ -85,9 +109,10 @@ class Content(UserControl):
 
 
 class user_ui(UserControl):
-    def __init__(self, pg):
+    def __init__(self, pg, db):
         super().__init__()
         self.__pg = pg
+        self.__db = db
 
     def add(self, event):
         self.__pg.navigator.navigate('users_change_users', self.__pg.page)
@@ -118,7 +143,7 @@ class user_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content()
+                        content=Content(self.__db)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -137,6 +162,7 @@ class User:
         super().__init__()
         self.__vault = vault
         self.__config = config
+        self.__db = db
 
     def user(self, pg: PageData):
         pg.page.title = "Пользователи"
@@ -158,7 +184,7 @@ class User:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=user_ui(pg),
+                        content=user_ui(pg, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,
