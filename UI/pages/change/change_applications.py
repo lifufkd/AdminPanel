@@ -8,6 +8,8 @@ from flet_navigator import PageData
 from UI.sidebar import SideBar
 #################################################
 
+
+
 class change_applications:
     def __init__(self, vault, config, db):
         super(change_applications, self).__init__()
