@@ -97,23 +97,38 @@ class DB:
             title TEXT,
             price INT,
             ratio TEXT, # JSON massive with (Коэффициент затрат, Коэффициенты специфики, Коэффициент уровня, Доля ЗП и прочих расходов),
-            ratio_switch BOOL,
-            mkb TEXT # внешние ключи в JSON
+            ratio_switch BOOL
+        );
+        CREATE TABLE IF NOT EXISTS relative_ksg_mkb(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_ksg INT,
+            id_mkb INT
+        );
+        CREATE TABLE IF NOT EXISTS relative_ksg_service(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_ksg INT,
+            id_service INT
+        );
+        CREATE TABLE IF NOT EXISTS relative_ksg_med_profile(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_ksg INT,
+            id_med_profile INT
+        );
+        CREATE TABLE IF NOT EXISTS relative_mkb_service(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            id_mkb INT,
+            id_service INT
         );
         CREATE TABLE IF NOT EXISTS mkb(
             id INT AUTO_INCREMENT PRIMARY KEY,
             code VARCHAR(255),
             title TEXT,
-            ksg TEXT, # внешние ключи в JSON
-            service TEXT, # внешние ключи в JSON
             clinical_minimum TEXT # JSON 2d massive (КАТЕГОРИИ, НАЗВАНИЕ, ВРЕМЯ ДЕЙСТВИЯ (ДНЕЙ))
         );
         CREATE TABLE IF NOT EXISTS service(
             id INT AUTO_INCREMENT PRIMARY KEY,
             code VARCHAR(255),
             title TEXT,
-            mkb TEXT, # внешние ключи в JSON
-            ksg TEXT, # внешние ключи в JSON
             clinical_minimum TEXT # JSON 2d massive (КАТЕГОРИИ, НАЗВАНИЕ, ВРЕМЯ ДЕЙСТВИЯ (ДНЕЙ))
         );
         CREATE TABLE IF NOT EXISTS ratio_settings(
@@ -126,8 +141,7 @@ class DB:
         );
         CREATE TABLE IF NOT EXISTS region(
             id INT AUTO_INCREMENT PRIMARY KEY,
-            title TEXT,
-            area TEXT # внешние ключи в JSON
+            title TEXT
         );
         CREATE TABLE IF NOT EXISTS area(
             id INT AUTO_INCREMENT PRIMARY KEY,

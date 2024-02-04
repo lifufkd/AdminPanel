@@ -6,11 +6,14 @@
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
+from modules.utilites import word_wrap
 #################################################
 class Content(UserControl):
     def __init__(self, db):
         super().__init__()
         self.__db = db
+        self.__c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
+        self.__max_len = 30  # перенос слов по 15 символов
     def build(self):
         return (Container
             (
@@ -56,34 +59,36 @@ class Content(UserControl):
     def generate_carts(self):
         carts = list()
         data = list()
+        pointer = {4: ['relative_ksg_mkb', 'id_ksg'], 5: ['relative_ksg_service', 'id_ksg'], 6: ['relative_ksg_med_profile', 'id_ksg']}
         raw_data = self.__db.get_data(
-            f'SELECT name, med_profiles, site, phone_number, email FROM hospital ORDER BY name DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
+            f'SELECT code, title, price, ratio_switch, id FROM ksg ORDER BY code DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
             ())
         for rows in raw_data:
             l1 = []
-            for row in range(len(rows)):
-                if row == 1:
-                    profiles = ''
-                    for item in unparse_json(rows[row]):
-                        profiles += self.__db.get_data(f'SELECT med_profile FROM med_profile WHERE id = {item}', ())[0][
-                                        0] + ', '
-                    l1.append(word_wrap(profiles, self.__max_len))
+            for row in range(len(rows) + 2):
+                if row == 3:
+                    if rows[row] == 1:
+                        l1.append(True)
+                    else:
+                        l1.append(False)
+                elif row in pointer:
+                    l1.append(self.__db.get_quantity(pointer[row][0], [pointer[row][1], rows[4]]))
+                elif row == 2:
+                    l1.append(rows[row])
                 else:
                     l1.append(word_wrap(rows[row], self.__max_len))
             data.append(l1)
-        test = [['st38.001', 'Соматические заболевания, осложненные старческой астенией', '8263', '192', '0', '1'],
-                ['st37.026', 'Продолжительная медицинская реабилитация пациентов с\nзаболеваниями центральной нервной системы и с\nзаболеваниями опорно-двигательного аппарата и\nпериферической нервной системы (сестринский уход)', '32988', '0', '7','1']]
-        for cart in test:
+        for cart in data:
             carts.append(
                 DataRow(
                     cells=[
                         DataCell(Text(cart[0])),
                         DataCell(Text(cart[1])),
                         DataCell(Text(cart[2])),
-                        DataCell(Switch(value=False, on_change=self.switchbnt())),
-                        DataCell(Text(cart[3])),
+                        DataCell(Switch(value=cart[3], on_change=self.switchbnt())),
                         DataCell(Text(cart[4])),
                         DataCell(Text(cart[5])),
+                        DataCell(Text(cart[6])),
                         DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
                         DataCell(IconButton(icon=icons.DELETE, tooltip='Удалить')),
                     ]

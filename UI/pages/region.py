@@ -5,15 +5,18 @@
 #################################################
 from flet import *
 import matplotlib.pyplot as plt
-from flet.matplotlib_chart import MatplotlibChart
+from modules.utilites import word_wrap
 from flet_navigator import PageData
 from UI.sidebar import SideBar
 #################################################
 
 
 class Content(UserControl):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
+        self.__db = db
+        self.__c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
+        self.__max_len = 400  # перенос слов по 15 символов
 
     def build(self):
         return (Container
@@ -54,9 +57,19 @@ class Content(UserControl):
 
     def generate_carts(self):
         carts = list()
-        test = [['Дальневосточный федеральный округ', '11'],
-                ['Сибирский федеральный округ', '10']]
-        for cart in test:
+        data = list()
+        raw_data = self.__db.get_data(
+            f'SELECT title, id FROM region ORDER BY title DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
+            ())
+        for rows in raw_data:
+            l1 = []
+            for row in range(len(rows)):
+                if row == 1:
+                    l1.append(self.__db.get_quantity('area', ['region', rows[1]]))
+                else:
+                    l1.append(word_wrap(rows[row], self.__max_len))
+            data.append(l1)
+        for cart in data:
             carts.append(
                 DataRow(
                     cells=[
@@ -71,9 +84,10 @@ class Content(UserControl):
 
 
 class region_ui(UserControl):
-    def __init__(self, pg):
+    def __init__(self, pg, db):
         super().__init__()
         self.__pg = pg
+        self.__db = db
 
     def add(self, event):
         self.__pg.navigator.navigate('region_change_region', self.__pg.page)
@@ -100,7 +114,7 @@ class region_ui(UserControl):
                         padding=padding.only(left=60, right=60, top=20)
                     ),
                     Container(
-                        content=Content()
+                        content=Content(self.__db)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -119,6 +133,7 @@ class Region:
         super(Region, self).__init__()
         self.__vault = vault
         self.__config = config
+        self.__db = db
 
     def region(self, pg: PageData):
         pg.page.title = "Регионы"
@@ -140,7 +155,7 @@ class Region:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=region_ui(pg),
+                        content=region_ui(pg, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

@@ -6,11 +6,16 @@
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
+from modules.utilites import word_wrap
 #################################################
 
+
 class Content(UserControl):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
+        self.__db = db
+        self.__c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
+        self.__max_len = 200  # перенос слов по 15 символов
 
     def build(self):
         return (Container
@@ -53,9 +58,20 @@ class Content(UserControl):
 
     def generate_carts(self):
         carts = list()
-        test = [['Z99.9', 'Зависимость от поддерживающих жизнедеятельность механизмов и устройств неуточненных', '1', '0'],
-                ['Z99.8', 'Зависимость от других вспомогательных механизмов и устройств', '1', '0']]
-        for cart in test:
+        data = list()
+        pointer = {2: ['relative_ksg_mkb', 'id_mkb'], 3: ['relative_mkb_service', 'id_mkb']}
+        raw_data = self.__db.get_data(
+            f'SELECT code, title, id FROM mkb ORDER BY code DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
+            ())
+        for rows in raw_data:
+            l1 = []
+            for row in range(len(rows) + 1):
+                if row in pointer:
+                    l1.append(self.__db.get_quantity(pointer[row][0], [pointer[row][1], rows[2]]))
+                else:
+                    l1.append(word_wrap(rows[row], self.__max_len))
+            data.append(l1)
+        for cart in data:
             carts.append(
                 DataRow(
                     cells=[
@@ -72,10 +88,10 @@ class Content(UserControl):
 
 
 class mkb_ui(UserControl):
-    def __init__(self, pg):
+    def __init__(self, pg, db):
         super().__init__()
         self.__pg = pg
-
+        self.__db = db
     def add(self, event):
         self.__pg.navigator.navigate('mkb_change_mkb', self.__pg.page)
 
@@ -105,7 +121,7 @@ class mkb_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content()
+                        content=Content(self.__db)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -122,6 +138,7 @@ class Mkb:
         super(Mkb, self).__init__()
         self.__vault = vault
         self.__config = config
+        self.__db = db
 
     def mkb(self, pg: PageData):
         pg.page.title = "МКБ"
@@ -143,7 +160,7 @@ class Mkb:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=mkb_ui(pg),
+                        content=mkb_ui(pg, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

@@ -5,12 +5,17 @@
 #################################################
 from flet import *
 from flet_navigator import PageData
+from modules.utilites import word_wrap
 from UI.sidebar import SideBar
 #################################################
 
+
 class Content(UserControl):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
+        self.__db = db
+        self.__c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
+        self.__max_len = 400  # перенос слов по 15 символов
 
     def build(self):
         return (Container
@@ -51,9 +56,20 @@ class Content(UserControl):
 
     def generate_carts(self):
         carts = list()
-        test = [['Эндокринология', '9'],
-                ['Челюстно-лицевая хирургия', '5']]
-        for cart in test:
+        data = list()
+        pointer = {1: ['relative_ksg_med_profile', 'id_med_profile']}
+        raw_data = self.__db.get_data(
+            f'SELECT med_profile, id FROM med_profile ORDER BY med_profile DESC LIMIT 15 OFFSET {(self.__c_page - 1) * 15}',
+            ())
+        for rows in raw_data:
+            l1 = []
+            for row in range(len(rows)):
+                if row in pointer:
+                    l1.append(self.__db.get_quantity(pointer[row][0], [pointer[row][1], rows[1]]))
+                else:
+                    l1.append(word_wrap(rows[row], self.__max_len))
+            data.append(l1)
+        for cart in data:
             carts.append(
                 DataRow(
                     cells=[
@@ -68,11 +84,14 @@ class Content(UserControl):
 
 
 class med_profile_ui(UserControl):
-    def __init__(self, pg):
+    def __init__(self, pg, db):
         super().__init__()
         self.__pg = pg
+        self.__db = db
+
     def add(self, event):
         self.__pg.navigator.navigate('med_profile_change_med_profile', self.__pg.page)
+
     def build(self):
         # ЗНАЧЕНИЯ#
         btn_create = FilledButton(icon=icons.ADD,
@@ -94,7 +113,7 @@ class med_profile_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content()
+                        content=Content(self.__db)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -106,11 +125,14 @@ class med_profile_ui(UserControl):
                 alignment=MainAxisAlignment.START,
             ),
         )
+
+
 class Med_profile:
     def __init__(self, vault, config, db):
         super(Med_profile, self).__init__()
         self.__vault = vault
         self.__config = config
+        self.__db = db
 
     def med_profile(self, pg: PageData):
         pg.page.title = "Мед. профили"
@@ -132,7 +154,7 @@ class Med_profile:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=med_profile_ui(pg),
+                        content=med_profile_ui(pg, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,
