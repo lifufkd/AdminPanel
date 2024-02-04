@@ -30,7 +30,7 @@ class DB:
             login TEXT,
             password TEXT,
             role INT, # 0 - admin, 1 - moderator, 2 - curator, 3 - user
-            full_name TEXT, # JSON massive (имя, фамилия, отчество)
+            full_name JSON, # JSON massive (имя, фамилия, отчество)
             photo MEDIUMBLOB,
             date_create DATE,
             email VARCHAR(255),
@@ -143,12 +143,12 @@ class DB:
         );
         ''')
 
-    def add_db_entry(self, query):
-        self.__cursor.execute(query)
+    def add_db_entry(self, query, var):
+        self.__cursor.execute(query, var)
         self.__db.commit()
 
     def authorization(self, login, password):
-        self.__cursor.execute(f'SELECT login, full_name, email, photo FROM users WHERE login = "{login}" AND password = "{password}" AND role = "0"')
+        self.__cursor.execute(f'SELECT login, full_name, email, photo, password, id FROM users WHERE login = "{login}" AND password = "{password}" AND role = "0"')
         user_data = self.__cursor.fetchone()
         if user_data is not None:
             return list(user_data)
