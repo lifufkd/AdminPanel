@@ -90,7 +90,7 @@ class mkb_ui(UserControl):
         self.__pg.navigator.navigate('mkb_change_mkb', self.__pg.page)
 
     def create_export(self, event):
-        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'mkb')
+        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.mkb(), 'mkb')
 
     def build(self):
         # ЗНАЧЕНИЯ#

@@ -92,7 +92,7 @@ class service_ui(UserControl):
         self.__pg.navigator.navigate('service_change_service', self.__pg.page)
 
     def create_export(self, event):
-        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'services')
+        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.service(), 'services')
 
     def build(self):
         # ЗНАЧЕНИЯ#

@@ -104,7 +104,7 @@ class user_ui(UserControl):
         self.__pg.navigator.navigate('users_change_users', self.__pg.page)
 
     def create_export(self, event):
-        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'users')
+        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.users(), 'users')
 
     def build(self):
         # ЗНАЧЕНИЯ#

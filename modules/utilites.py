@@ -5,6 +5,7 @@
 #################################################
 import datetime
 import json
+import os
 import parawrap
 import xlwt
 from time import gmtime, strftime
@@ -71,6 +72,8 @@ def word_wrap(text, max_len):
 
 
 def save_export_xlsx(path, data, typ):
+    if not os.path.exists(path):
+        os.mkdir(path)
     workbook = xlwt.Workbook()
     sheet = workbook.add_sheet("Sheet")
     for i in range(len(data)):

@@ -98,7 +98,7 @@ class ksg_ui(UserControl):
         self.__pg.navigator.navigate('ksg_change_ksg', self.__pg.page)
 
     def create_export(self, event):
-        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'ksg')
+        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.ksg(), 'ksg')
 
     def build(self):
         # ЗНАЧЕНИЯ#

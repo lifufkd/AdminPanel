@@ -85,7 +85,7 @@ class med_profile_ui(UserControl):
         self.__pg.navigator.navigate('med_profile_change_med_profile', self.__pg.page)
 
     def create_export(self, event):
-        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'med_profile')
+        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.med_profile(), 'med_profile')
 
     def build(self):
         # ЗНАЧЕНИЯ#

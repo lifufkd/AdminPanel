@@ -86,7 +86,7 @@ class area_ui(UserControl):
         self.__pg.navigator.navigate('area_change_area', self.__pg.page)
 
     def create_export(self, event):
-        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'area')
+        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.area(), 'area')
 
     def build(self):
         # ЗНАЧЕНИЯ#

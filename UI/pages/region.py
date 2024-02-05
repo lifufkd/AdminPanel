@@ -87,7 +87,7 @@ class region_ui(UserControl):
         self.__pg.navigator.navigate('region_change_region', self.__pg.page)
 
     def create_export(self, event):
-        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'region')
+        save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.region(), 'region')
 
     def build(self):
         # ЗНАЧЕНИЯ#
