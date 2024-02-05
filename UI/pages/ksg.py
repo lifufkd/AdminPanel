@@ -7,15 +7,16 @@ from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
 from modules.load_data import LoadData
-from modules.utilites import save_export_xlsx, switch_btns_ksg
+from modules.utilites import save_export_xlsx, switch_btns_ksg, delete_row
 
 
 #################################################
 class Content(UserControl):
-    def __init__(self, load_data, db):
+    def __init__(self, load_data, db, pg):
         super().__init__()
         self.__load_data = load_data
         self.__db = db
+        self.__pg = pg
 
     def build(self):
         return (Container
@@ -59,6 +60,11 @@ class Content(UserControl):
     def switchbnt(self, e):
         switch_btns_ksg(e.control.tooltip, e.control.value, self.__db)
 
+    def delete_row(self, event):
+        user_id = event.control.tooltip
+        delete_row(self.__db, {'ksg': ['id', user_id], 'relative_ksg_mkb': ['id_ksg', user_id], 'relative_ksg_service': ['id_ksg', user_id], 'relative_ksg_med_profile': ['id_ksg', user_id]})
+        self.__pg.page.update()
+
     def generate_carts(self):
         carts = list()
         for cart in self.__load_data.ksg():
@@ -73,7 +79,7 @@ class Content(UserControl):
                         DataCell(Text(cart[5])),
                         DataCell(Text(cart[6])),
                         DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
-                        DataCell(IconButton(icon=icons.DELETE, tooltip='Удалить')),
+                        DataCell(IconButton(icon=icons.DELETE, tooltip=cart[7], on_click=self.delete_row)),
                     ]
                 )
             )
@@ -120,7 +126,7 @@ class ksg_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content(self.__load_data, self.__db)
+                        content=Content(self.__load_data, self.__db, self.__pg)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),

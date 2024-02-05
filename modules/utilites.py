@@ -88,5 +88,10 @@ def switch_btns_ksg(data, value, db):
     db.add_db_entry(f'UPDATE ksg SET ratio_switch = {value} WHERE id = "{data}"', ())
 
 
+def delete_row(db, data):
+    for i, g in data.items():
+        db.add_db_entry(f'UPDATE {i} SET deleted = 1 WHERE {g[0]} = "{g[1]}"', ())
+
+
 
 

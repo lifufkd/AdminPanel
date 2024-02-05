@@ -6,16 +6,23 @@
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
-from modules.utilites import word_wrap, save_export_xlsx
+from modules.utilites import save_export_xlsx, delete_row
 from modules.load_data import LoadData
 #################################################
 
 
 class Content(UserControl):
-    def __init__(self, load_data, config):
+    def __init__(self, load_data, config, pg, db):
         super().__init__()
+        self.__dlg_modal = None
         self.__load_data = load_data
         self.__config = config
+        self.__pg = pg
+        self.__db = db
+
+    def delete_row(self, event):
+        delete_row(self.__db, {'application': ['id', event.control.tooltip]})
+        self.__pg.page.update()
 
     def build(self):
         return (Container
@@ -70,7 +77,7 @@ class Content(UserControl):
                         DataCell(Text(cart[5])),
                         DataCell(Text(cart[6])),
                         DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
-                        DataCell(IconButton(icon=icons.DELETE, tooltip='Удалить')),
+                        DataCell(IconButton(icon=icons.DELETE, tooltip=cart[7], on_click=self.delete_row)),
 
                     ]
                 )
@@ -79,11 +86,12 @@ class Content(UserControl):
 
 
 class application_ui(UserControl):
-    def __init__(self, pg, load_data, config):
+    def __init__(self, pg, load_data, config, db):
         super().__init__()
         self.__pg = pg
         self.__load_data = load_data
         self.__config = config
+        self.__db = db
 
     def add(self, event):
         self.__pg.navigator.navigate('applications_change_applications', self.__pg.page)
@@ -116,7 +124,7 @@ class application_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content(self.__load_data, self.__config),
+                        content=Content(self.__load_data, self.__config, self.__pg, self.__db),
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -160,7 +168,7 @@ class Application:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=application_ui(pg, self.__load_data, self.__config),
+                        content=application_ui(pg, self.__load_data, self.__config, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

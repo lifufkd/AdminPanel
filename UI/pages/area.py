@@ -7,16 +7,18 @@ from flet import *
 from flet_navigator import PageData
 from modules.load_data import LoadData
 from UI.sidebar import SideBar
-from modules.utilites import save_export_xlsx
+from modules.utilites import save_export_xlsx, delete_row
 
 
 #################################################
 
 
 class Content(UserControl):
-    def __init__(self, load_data):
+    def __init__(self, load_data, db, pg):
         super().__init__()
         self.__load_data = load_data
+        self.__db = db
+        self.__pg = pg
 
     def build(self):
         return (Container
@@ -52,8 +54,9 @@ class Content(UserControl):
         )
         )
 
-    def switchbnt(self):
-        pass
+    def delete_row(self, event):
+        delete_row(self.__db, {'area': ['id', event.control.tooltip]})
+        self.__pg.page.update()
 
     def generate_carts(self):
         carts = list()
@@ -64,7 +67,7 @@ class Content(UserControl):
                         DataCell(Text(cart[0])),
                         DataCell(Text(cart[1])),
                         DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
-                        DataCell(IconButton(icon=icons.DELETE, tooltip='Удалить')),
+                        DataCell(IconButton(icon=icons.DELETE, tooltip=cart[2], on_click=self.delete_row)),
                     ]
                 )
             )
@@ -72,11 +75,12 @@ class Content(UserControl):
 
 
 class area_ui(UserControl):
-    def __init__(self, pg, load_data, config):
+    def __init__(self, pg, load_data, config, db):
         super().__init__()
         self.__pg = pg
         self.__load_data = load_data
         self.__config = config
+        self.__db = db
 
     def add(self, event):
         self.__pg.navigator.navigate('area_change_area', self.__pg.page)
@@ -112,7 +116,7 @@ class area_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content(self.__load_data)
+                        content=Content(self.__load_data, self.__db, self.__pg)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -154,7 +158,7 @@ class Area:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=area_ui(pg, self.__load_data, self.__config),
+                        content=area_ui(pg, self.__load_data, self.__config, self.__db),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,
