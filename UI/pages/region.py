@@ -7,18 +7,16 @@ from flet import *
 import matplotlib.pyplot as plt
 
 from modules.load_data import LoadData
-from modules.utilites import word_wrap, save_export_xlsx, delete_row
+from modules.utilites import word_wrap, save_export_xlsx
 from flet_navigator import PageData
 from UI.sidebar import SideBar
 #################################################
 
 
 class Content(UserControl):
-    def __init__(self, load_data, db, pg):
+    def __init__(self, load_data):
         super().__init__()
         self.__load_data = load_data
-        self.__db = db
-        self.__pg = pg
 
     def build(self):
         return (Container
@@ -54,10 +52,8 @@ class Content(UserControl):
         )
         )
 
-    def delete_row(self, event):
-        delete_row(self.__db,
-                   {'region': ['id', event.control.tooltip]})
-        self.__pg.page.update()
+    def switchbnt(self):
+        pass
 
     def generate_carts(self):
         carts = list()
@@ -68,7 +64,7 @@ class Content(UserControl):
                         DataCell(Text(cart[0])),
                         DataCell(Text(cart[1])),
                         DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
-                        DataCell(IconButton(icon=icons.DELETE, tooltip=cart[2], on_click=self.delete_row)),
+                        DataCell(IconButton(icon=icons.DELETE, tooltip='Удалить')),
                     ]
                 )
             )
@@ -76,23 +72,18 @@ class Content(UserControl):
 
 
 class region_ui(UserControl):
-    def __init__(self, pg, load_data, config, db):
+    def __init__(self, pg, load_data, config):
         super().__init__()
         self.__pg = pg
         self.__config = config
         self.__load_data = load_data
-        self.__db = db
 
-    def add(self, event):
-        self.__pg.navigator.navigate('region_change_region', self.__pg.page)
 
     def create_export(self, event):
         save_export_xlsx(self.__config['export_xlsx_path'], self.__load_data.application(), 'region')
 
     def build(self):
         # ЗНАЧЕНИЯ#
-        btn_create = FilledButton(icon=icons.ADD,
-                                  text='Создать', on_click=self.add)  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
         btn_next_page1 = FilledButton(text='1', tooltip='thispage')
         btn_next_page2 = FilledButton(text='2', tooltip='nextpage2')
         btn_next_page3 = FilledButton(text='3', tooltip='nextpage3')
@@ -111,11 +102,7 @@ class region_ui(UserControl):
                         padding=padding.only(left=60, right=60, top=20)
                     ),
                     Container(
-                        content=Row([btn_create, pb]),
-                        padding=padding.only(left=50, top=10)
-                    ),
-                    Container(
-                        content=Content(self.__load_data, self.__db, self.__pg)
+                        content=Content(self.__load_data)
                     ),
                     Container(
                         content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
@@ -157,7 +144,7 @@ class Region:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=region_ui(pg, self.__load_data, self.__config, self.__db),
+                        content=region_ui(pg, self.__load_data, self.__config),
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

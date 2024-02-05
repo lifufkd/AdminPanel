@@ -29,8 +29,8 @@ class SideBar(UserControl):
             self.__pg.navigator.navigate('ksg', self.__pg.page)
         elif self.__buttonnames[6] == e.control.tooltip:
             self.__pg.navigator.navigate('mkb', self.__pg.page)
-        elif self.__buttonnames[7] == e.control.tooltip:
-            self.__pg.navigator.navigate('ratio', self.__pg.page)
+        #elif self.__buttonnames[7] == e.control.tooltip:
+            #self.__pg.navigator.navigate('ratio', self.__pg.page)
         elif self.__buttonnames[8] == e.control.tooltip:
             self.__pg.navigator.navigate('region', self.__pg.page)
         elif self.__buttonnames[9] == e.control.tooltip:
@@ -147,7 +147,7 @@ class SideBar(UserControl):
                     self.ContainedIcon(icons.MEDICAL_SERVICES_OUTLINED, self.__buttonnames[5]),
                     self.ContainedIcon(icons.MEDICAL_SERVICES_OUTLINED, self.__buttonnames[6]),
                     self.ContainedIcon(icons.ATTACH_MONEY, self.__buttonnames[4]),
-                    self.ContainedIcon(icons.ATM_ROUNDED, self.__buttonnames[7]),
+                    #self.ContainedIcon(icons.ATM_ROUNDED, self.__buttonnames[7]),
                     Divider(height=5),
                     self.ContainedIcon(icons.AREA_CHART_OUTLINED, self.__buttonnames[8]),
                     self.ContainedIcon(icons.AREA_CHART, self.__buttonnames[9]),

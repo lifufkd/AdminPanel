@@ -70,11 +70,10 @@ class ChangeProfile(UserControl):
         self.__user_name = TextField(label='Фамилия', on_change=self.validate)
         self.__middle_name = TextField(label='Имя', on_change=self.validate)
         self.__last_name = TextField(label='Отчество', on_change=self.validate)
-        self.__user_pass = TextField(label='Пароль', password=True, on_change=self.validate)
-        self.__user_pass_confirm = TextField(label='Подтвердите пароль', password=True, on_change=self.validate)
+        self.__user_pass = TextField(label='Пароль', password=True, on_change=self.validate, can_reveal_password=True)
+        self.__user_pass_confirm = TextField(label='Подтвердите пароль', password=True, on_change=self.validate, can_reveal_password=True)
         self.__user_login = TextField(label='Логин', on_change=self.validate)
         self.__btn_save = OutlinedButton(text='Сохранить', width=200, on_click=self.savechanges)
-        # title_text = Text(value='Профиль', size=15),
 
         return Container(
             height=1500,

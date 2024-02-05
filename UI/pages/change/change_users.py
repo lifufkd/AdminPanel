@@ -23,8 +23,8 @@ class Content(UserControl):
         area = Dropdown(hint_text='Область', options=[dropdown.Option("Белгородская область"), dropdown.Option("Брянская область"), dropdown.Option("Владимирская область")])
         agent = Switch(value=False)
         blocked = Switch(value=False)
-        password = TextField(label='Пароль', password=True)
-        password_retry = TextField(label='Повторите пароль', password=True)
+        password = TextField(label='Пароль', password=True, can_reveal_password=True)
+        password_retry = TextField(label='Повторите пароль', password=True, can_reveal_password=True)
         save = FilledButton(text='Сохранить')
         return (Container
             (

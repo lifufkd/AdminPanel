@@ -21,6 +21,53 @@ class Content(UserControl):
         site = TextField(label="Сайт")
         phone = TextField(label="Телефон")
         email = TextField(label="E-mail")
+        other_contacts = DataTable(
+            border_radius=10,
+            width=1500,
+            border=border.all(2, "black"),
+            columns=[
+                DataColumn(Text("#")),
+                DataColumn(Text("Тип")),
+                DataColumn(Text("Значение")),
+            ],
+            rows=[
+                DataRow(
+                    cells=[
+                        DataCell(Text(value="1")),
+                        DataCell(TextField(label="Тип", )),
+                        DataCell(TextField(label="Значение")),
+                ]
+                ),
+                DataRow(
+                    cells=[
+                        DataCell(Text(value="2")),
+                        DataCell(TextField(label="Тип")),
+                        DataCell(TextField(label="Значение")),
+                    ]
+                ),
+                DataRow(
+                    cells=[
+                        DataCell(Text(value="3")),
+                        DataCell(TextField(label="Тип")),
+                        DataCell(TextField(label="Значение")),
+                    ]
+                ),
+                DataRow(
+                    cells=[
+                        DataCell(Text(value="4")),
+                        DataCell(TextField(label="Тип")),
+                        DataCell(TextField(label="Значение")),
+                    ]
+                ),
+                DataRow(
+                    cells=[
+                        DataCell(Text(value="5")),
+                        DataCell(TextField(label="Тип")),
+                        DataCell(TextField(label="Значение")),
+                    ]
+                ),
+            ]
+        )
         region = Dropdown(hint_text='Регион', options=[dropdown.Option("Центральный федеральный округ"),
                                                        dropdown.Option("Южный федеральный округ"),
                                                        dropdown.Option("Уральский федеральный округ")])
@@ -79,6 +126,7 @@ class Content(UserControl):
                         Container(site, padding=padding.only(left=50, right=50, top=10)),
                         Container(phone, padding=padding.only(left=50, right=50, top=10)),
                         Container(email, padding=padding.only(left=50, right=50, top=10)),
+                        Container(other_contacts, padding=padding.only(left=50, right=50, top=10)),
                         Divider(height=10),
                         Container(
                             Text(value='Расположение', size=20),

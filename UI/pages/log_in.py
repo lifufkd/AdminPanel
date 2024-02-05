@@ -55,7 +55,7 @@ class Log_in:
             pg.page.update()
 
         user_login = ft.TextField(label='Логин', width=400, on_change=validate)
-        user_pass = ft.TextField(label='Пароль', width=400, on_change=validate, password=True)
+        user_pass = ft.TextField(label='Пароль', width=400, on_change=validate, password=True, can_reveal_password=True)
         btn_login = ft.OutlinedButton(text='Войти', width=400, on_click=login, disabled=True)
         btn_save = ft.Checkbox(label='Запомнить', value=False)
         title_text = ft.Text(value='Добро пожаловать в SherDOC -\nздоровье это элементарно!',
