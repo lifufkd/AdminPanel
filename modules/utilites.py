@@ -96,5 +96,9 @@ def delete_row(db, data):
         db.add_db_entry(f'UPDATE {i} SET deleted = 1 WHERE {g[0]} = "{g[1]}"', ())
 
 
+def insert_data(db, table, data):
+    db.add_db_entry(f'INSERT INTO {table} (number, application_type, payment_type, application_status, close_author, patient, mkb, service, сhronic_diseases, comment_designer, comment_tutor, file, price, application_author, hospitalized, hospital, ratio, status, date_create, date_notice, date_hospitalized, date_close, deleted) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', data)
+
+
 
 

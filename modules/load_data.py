@@ -210,3 +210,54 @@ class LoadData:
             l1.append(rows[2])
             data.append(l1)
         return data
+
+
+class LoadDropBox:
+    def __init__(self, db):
+        super(LoadDropBox, self).__init__()
+        self.__db = db
+
+    def load_application_type(self):
+        return self.__db.get_data(
+            f'SELECT title, id FROM application_type WHERE deleted = 0 ORDER BY title',
+            ())
+
+    def load_payment_type(self):
+        return self.__db.get_data(
+            f'SELECT title, id FROM payment_type WHERE deleted = 0 ORDER BY title',
+            ())
+
+    def application_status(self):
+        return self.__db.get_data(
+            f'SELECT title, id FROM application_status WHERE deleted = 0 ORDER BY title',
+            ())
+
+    def close_author(self):
+        return self.__db.get_data(
+            f'SELECT full_name, id FROM users WHERE deleted = 0 ORDER BY full_name',
+            ())
+
+    def mkb(self):
+        return self.__db.get_data(
+            f'SELECT code, id FROM mkb WHERE deleted = 0 ORDER BY code',
+            ())
+
+    def service(self):
+        return self.__db.get_data(
+            f'SELECT code, id FROM service WHERE deleted = 0 ORDER BY code',
+            ())
+
+    def hospitalized(self):
+        return self.__db.get_data(
+            f'SELECT title, id FROM hospitalized WHERE deleted = 0 ORDER BY title',
+            ())
+
+    def hospital(self):
+        return self.__db.get_data(
+            f'SELECT name, id FROM hospital WHERE deleted = 0 ORDER BY name',
+            ())
+
+    def benefit_status(self):
+        return self.__db.get_data(
+            f'SELECT title, id FROM benefit_status WHERE deleted = 0 ORDER BY title',
+            ())

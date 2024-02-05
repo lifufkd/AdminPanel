@@ -54,12 +54,12 @@ class DB:
             сhronic_diseases TEXT,
             comment_designer TEXT,
             comment_tutor TEXT,
-            file LONGTEXT, # JSON massive with blobs
+            file LONGBLOB, # JSON massive with blobs
             price INT,
             application_author INT, # внешний ключ
             hospitalized INT,
             hospital INT, # внешний ключ
-            ratio DECIMAL(7,2),
+            ratio DECIMAL(3,2),
             status INT, # внешний ключ
             date_create DATETIME,
             date_notice DATETIME,
@@ -186,7 +186,7 @@ class DB:
         self.__db.commit()
 
     def authorization(self, login, password):
-        self.__cursor.execute(f'SELECT login, full_name, email, photo, id, password FROM users WHERE login = "{login}" AND password = "{password}" AND role = "0" AND blocked = "0" AND "deleted" = 0')
+        self.__cursor.execute(f'SELECT login, full_name, email, photo, id, password FROM users WHERE login = "{login}" AND password = "{password}" AND role = 0 AND blocked = 0 AND deleted = 0')
         user_data = self.__cursor.fetchone()
         if user_data is not None:
             return list(user_data)

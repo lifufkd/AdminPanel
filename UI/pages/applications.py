@@ -94,6 +94,7 @@ class application_ui(UserControl):
         self.__db = db
 
     def add(self, event):
+        self.__pg.page.client_storage.set("current_action", "add")
         self.__pg.navigator.navigate('applications_change_applications', self.__pg.page)
 
     def create_export(self, event):

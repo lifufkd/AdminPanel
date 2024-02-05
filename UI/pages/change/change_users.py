@@ -7,7 +7,14 @@ from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
 #################################################
-class Content(UserControl):
+
+
+class ContentFilled(UserControl):
+    def __init__(self):
+        super().__init__()
+
+
+class ContentEmpty(UserControl):
     def __init__(self):
         super().__init__()
 
@@ -80,6 +87,7 @@ class change_users:
         super(change_users, self).__init__()
         self.__vault = vault
         self.__config = config
+        self.__states = {'add': ContentEmpty(), 'change': ContentFilled()}
 
     def change_users(self, pg: PageData):
         pg.page.title = "Пользователи - Создать"
@@ -103,7 +111,7 @@ class change_users:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=Content(),
+                        content=self.__states[pg.page.client_storage.get("current_action")],
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

@@ -8,7 +8,13 @@ from flet_navigator import PageData
 from UI.sidebar import SideBar
 #################################################
 
-class Content(UserControl):
+
+class ContentFilled(UserControl):
+    def __init__(self):
+        super().__init__()
+
+
+class ContentEmpty(UserControl):
     def __init__(self):
         super().__init__()
 
@@ -164,6 +170,7 @@ class change_clinics:
         super(change_clinics, self).__init__()
         self.__vault = vault
         self.__config = config
+        self.__states = {'add': ContentEmpty(), 'change': ContentFilled()}
 
     def change_clinics(self, pg: PageData):
         pg.page.title = "Клиники - Создать"
@@ -187,7 +194,7 @@ class change_clinics:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=Content(),
+                        content=self.__states[pg.page.client_storage.get("current_action")],
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,
