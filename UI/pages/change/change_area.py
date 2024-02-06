@@ -53,8 +53,7 @@ class Content(UserControl):
             try:
                 insert_data_area(self.__db, 'area', data)
                 self.init_dlg(True)
-            except Exception as e:
-                print(e)
+            except:
                 self.init_dlg(False)
         else:
             try:
@@ -80,7 +79,7 @@ class Content(UserControl):
         return carts
 
     def existed_data(self):
-        return self.__load_pages.application(self.__row_id)
+        return self.__load_pages.area(self.__row_id)
 
     def build(self):
         if self.__row_id is not None:

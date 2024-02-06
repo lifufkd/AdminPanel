@@ -36,7 +36,7 @@ def unparse_json(data):
 
 
 def parse_json(data):
-    return json.dumps(data)
+    return json.dumps(data, ensure_ascii=False)
 
 
 def update_profile(new_data, old_data, db):
@@ -110,6 +110,43 @@ def insert_data_area(db, table, data):
 
 def update_data_area(db, table, data, row_id):
     db.add_db_entry(f'UPDATE {table} SET area = %s, region = %s, deleted = %s WHERE id = {row_id}', data)
+
+
+def insert_data_users(db, table, data):
+    print(data)
+    db.add_db_entry(f'INSERT INTO {table} (role, full_name, date_create, email, phone_number, region, area, agent, blocked, password, deleted) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', data)
+
+
+def update_data_users(db, table, data, row_id):
+    print(data)
+    db.add_db_entry(f'UPDATE {table} SET role = %s, full_name = %s, date_create = %s, email = %s, phone_number = %s, region = %s, area = %s, agent = %s, blocked = %s, password = %s, deleted = %s WHERE id = {row_id}', data)
+
+
+def insert_data_med_profile(db, data):
+    temp = list()
+    db.add_db_entry(f'INSERT INTO med_profile (med_profile, deleted) VALUES (%s, %s)', (data[0], 0))
+    med_profile = db.get_data(f'SELECT MAX(id) FROM med_profile', ())[0][0]
+    for i in data[1]:
+        ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i, ))
+        temp.append(ids[0][0])
+    for i in temp:
+        db.add_db_entry(f'INSERT INTO relative_ksg_med_profile (id_ksg, id_med_profile, deleted) VALUES (%s, %s, %s)', (i, med_profile, 0))
+
+
+def update_data_med_profile(db, data, row_id):
+    temp = list()
+    db.add_db_entry(f'UPDATE med_profile SET med_profile = %s, deleted = %s WHERE id = %s', (data[0], 0, row_id))
+    for i in data[1]:
+        ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i,))
+        temp.append(ids[0][0])
+    for i in temp:
+        stat = db.get_data(f'SELECT EXISTS(SELECT id_ksg, id_med_profile FROM relative_ksg_med_profile WHERE id_ksg = %s AND id_med_profile = %s)', (i, row_id))[0][0]
+        print(stat)
+        print(i, row_id)
+        if stat == 0:
+            db.add_db_entry(f'INSERT INTO relative_ksg_med_profile (id_ksg, id_med_profile, deleted) VALUES (%s, %s, %s)',
+                            (i, row_id, 0))
+
 
 
 

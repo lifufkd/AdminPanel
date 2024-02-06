@@ -8,6 +8,7 @@ from flet_navigator import PageData
 from UI.sidebar import SideBar
 from modules.load_data import LoadDropBox, LoadPages
 from modules.process_data import ProcessData
+from modules.utilites import insert_data_med_profile, update_data_med_profile
 
 
 #################################################
@@ -47,18 +48,19 @@ class Content(UserControl):
         )
 
     def save_changes(self, e):
-        data = self.__process_data.area(self.__data)
+        data = self.__process_data.med_profile(self.__data)
         if self.__row_id is None:
             try:
-                insert_data_area(self.__db, 'area', data)
+                insert_data_med_profile(self.__db, data)
                 self.init_dlg(True)
             except:
                 self.init_dlg(False)
         else:
             try:
-                update_data_area(self.__db, 'area', data, self.__row_id)
+                update_data_med_profile(self.__db, data, self.__row_id)
                 self.init_dlg(True)
-            except:
+            except Exception as e:
+                print(e)
                 self.init_dlg(False)
 
     def init_dlg(self, switch):
@@ -70,17 +72,26 @@ class Content(UserControl):
             self.open_dlg_modal(None)
 
     def existed_data(self):
-        return self.__load_pages.application(self.__row_id)
+        return self.__load_pages.med_profile(self.__row_id)
+
+    def ksg(self):
+        carts = list()
+        for cart in self.__load_drop_box.ksg():
+            carts.append(
+                dropdown.Option(text=cart[0], key=cart[1])
+            )
+        return carts
 
     def build(self):
         if self.__row_id is not None:
-            self.existed_data = self.existed_data()
+            self.__existed_data = self.existed_data()
+            print(self.__existed_data)
         else:
             for x in range(3):
                 self.__existed_data.append('')
         self.__data[0] = TextField(label="Название", value=self.__existed_data[0])
-        self.__data[1] = Dropdown(hint_text='КСГ', options=self.load_region(), value=self.__existed_data[1])
-        self.__data[2] = FilledButton(text='Сохранить', value=self.__existed_data[0])
+        self.__data[1] = TextField(label="КСГ (ввод по коду через запятую)", value=self.__existed_data[1])
+        self.__data[2] = FilledButton(text='Сохранить', on_click=self.save_changes)
         return (Container
             (
             padding=padding.only(left=30, right=30, top=15),
@@ -114,6 +125,9 @@ class Content(UserControl):
 class change_med_profile:
     def __init__(self, vault, config, db):
         super(change_med_profile, self).__init__()
+        self.__ksg = None
+        self.__choose_ksg = None
+        self.__title = None
         self.__save = None
         self.__csg = None
         self.__name = None
@@ -124,13 +138,13 @@ class change_med_profile:
         self.__load_drop_box = LoadDropBox(db)
         self.__load_pages = LoadPages(db)
         self.__process_data = ProcessData()
+        self.__data_buttons = [self.__title, self.__ksg, self.__save]
 
     def change_med_profile(self, pg: PageData):
         row_id = pg.page.client_storage.get("current_action")[1]
         self.__states = {'add': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db, self.__process_data),
                          'change': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db,
                                            self.__process_data, self.__load_pages, row_id)}
-        self.__data_buttons = [self.__name, self.__csg, self.__save]
         if row_id is not None:
             name = 'изменить'
         else:

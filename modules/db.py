@@ -145,6 +145,7 @@ class DB:
         );
         CREATE TABLE IF NOT EXISTS ratio_settings(
             id INT AUTO_INCREMENT PRIMARY KEY,
+            title TEXT,
             parameter DECIMAL(12,2),
             deleted BOOL
         );

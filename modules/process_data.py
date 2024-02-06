@@ -3,9 +3,9 @@
 #                     ZZS                       #
 #                     SBR                       #
 #################################################
-from decimal import Decimal
 from datetime import datetime
-
+from decimal import Decimal
+from modules.utilites import parse_json
 #################################################
 
 
@@ -31,10 +31,10 @@ class ProcessData:
                 except:
                     cached_data.append(Decimal(0))
             elif item in required[2:]:
-                if data[item].value == '':
+                try:
+                    cached_data.append(datetime.strptime(data[item].value, "%d-%m-%Y"))
+                except:
                     cached_data.append(None)
-                else:
-                    cached_data.append(data[item].value)
             else:
                 if data[item].value is None:
                     cached_data.append('')
@@ -51,5 +51,45 @@ class ProcessData:
                 cached_data.append('')
             else:
                 cached_data.append(data[item].value)
+        cached_data.append(0)
+        return cached_data
+
+    def users(self, data):
+        cached_data = list()
+        for item in range(len(data) - 1):
+            if item in [1, 2, 3]:
+                if len(data[1].value) == 0 or len(data[2].value) == 0 or len(data[3].value) == 0:
+                    return None
+                elif item in [2, 3]:
+                    continue
+                else:
+                    cached_data.append(parse_json([data[1].value, data[2].value, data[3].value]))
+            elif item == 4:
+                try:
+                    cached_data.append(datetime.strptime(data[item].value, "%d-%m-%Y"))
+                except:
+                    cached_data.append(None)
+            elif item == 11:
+                if (data[11].value != data[12].value) or (data[11].value or data[12].value) is None:
+                    return None
+                continue
+            else:
+                if data[item].value is None:
+                    cached_data.append('')
+                else:
+                    cached_data.append(data[item].value)
+        cached_data.append(0)
+        return cached_data
+
+    def med_profile(self, data):
+        cached_data = list()
+        for item in range(len(data) - 1):
+            if item == 1:
+                cached_data.append(data[item].value.split(', '))
+            else:
+                if data[item].value is None:
+                    cached_data.append('')
+                else:
+                    cached_data.append(data[item].value)
         cached_data.append(0)
         return cached_data

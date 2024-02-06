@@ -8,6 +8,7 @@ from flet_navigator import PageData
 from UI.sidebar import SideBar
 from modules.load_data import LoadDropBox, LoadPages
 from modules.process_data import ProcessData
+from modules.utilites import insert_data_users, update_data_users
 
 
 #################################################
@@ -47,16 +48,16 @@ class Content(UserControl):
         )
 
     def save_changes(self, e):
-        data = self.__process_data.area(self.__data)
+        data = self.__process_data.users(self.__data)
         if self.__row_id is None:
             try:
-                insert_data_area(self.__db, 'area', data)
+                insert_data_users(self.__db, 'users', data)
                 self.init_dlg(True)
             except:
                 self.init_dlg(False)
         else:
             try:
-                update_data_area(self.__db, 'area', data, self.__row_id)
+                update_data_users(self.__db, 'users', data, self.__row_id)
                 self.init_dlg(True)
             except:
                 self.init_dlg(False)
@@ -68,29 +69,58 @@ class Content(UserControl):
         else:
             self.dlg_modal(['Данные не сохранены', 'дополните заявку'])
             self.open_dlg_modal(None)
+
+    def region(self):
+        carts = list()
+        for cart in self.__load_drop_box.region():
+            carts.append(
+                dropdown.Option(text=cart[0], key=cart[1])
+            )
+        return carts
+
+    def role(self):
+        carts = list()
+        roles = [['Администратор', 0], ['Модератор', 1], ['Куратор', 2], ['Пользователь', 3], ['Не определена', 4]]
+        for cart in roles:
+            carts.append(
+                dropdown.Option(text=cart[0], key=cart[1])
+            )
+        return carts
+
+    def area(self):
+        carts = list()
+        for cart in self.__load_drop_box.area():
+            carts.append(
+                dropdown.Option(text=cart[0], key=cart[1])
+            )
+        return carts
+
     def existed_data(self):
-        return self.__load_pages.application(self.__row_id)
+        return self.__load_pages.users(self.__row_id)
 
     def build(self):
         if self.__row_id is not None:
-            self.existed_data = self.existed_data()
+            self.__existed_data = self.existed_data()
         else:
             for x in range(14):
-                self.__existed_data.append('')
-        self.__data[0] = Dropdown(hint_text='Роль', options=[dropdown.Option("Admin"), dropdown.Option("Неопределенна"), dropdown.Option("Куратор")])
-        self.__data[1] = TextField(label="Имя", value=self.__existed_data[0])
-        self.__data[2] = TextField(label="Фамилия", value=self.__existed_data[1])
-        self.__data[3] = TextField(label="Отчество", value=self.__existed_data[2])
-        self.__data[4] = TextField(label="День рождения", value=self.__existed_data[3])
-        self.__data[5] = TextField(label="E-mail", value=self.__existed_data[4])
-        self.__data[6] = TextField(label="Телефон", value=self.__existed_data[5])
-        self.__data[7] = Dropdown(hint_text='Регион', options=self.load_region(), value=self.__existed_data[1])
-        self.__data[8] = Dropdown(hint_text='Область', options=self.load_region(), value=self.__existed_data[1])
-        self.__data[9] = Switch(value=self.__existed_data[0])
-        self.__data[10] = Switch(value=self.__existed_data[0])
-        self.__data[11] = TextField(label='Пароль', password=True, can_reveal_password=True, value=self.__existed_data[6])
-        self.__data[12] = TextField(label='Повторите пароль', password=True, can_reveal_password=True, value=self.__existed_data[7])
-        self.__data[13] = FilledButton(text='Сохранить')
+                if x in [9, 10]:
+                    self.__existed_data.append(False)
+                else:
+                    self.__existed_data.append('')
+        self.__data[0] = Dropdown(hint_text='Роль', options=self.role(), value=self.__existed_data[0])
+        self.__data[1] = TextField(label="Имя", value=self.__existed_data[1])
+        self.__data[2] = TextField(label="Фамилия", value=self.__existed_data[2])
+        self.__data[3] = TextField(label="Отчество", value=self.__existed_data[3])
+        self.__data[4] = TextField(label="День рождения", value=self.__existed_data[4])
+        self.__data[5] = TextField(label="E-mail", value=self.__existed_data[5])
+        self.__data[6] = TextField(label="Телефон", value=self.__existed_data[6])
+        self.__data[7] = Dropdown(hint_text='Регион', options=self.region(), value=self.__existed_data[7])
+        self.__data[8] = Dropdown(hint_text='Область', options=self.area(), value=self.__existed_data[8])
+        self.__data[9] = Switch(value=self.__existed_data[9])
+        self.__data[10] = Switch(value=self.__existed_data[10])
+        self.__data[11] = TextField(label='Пароль', password=True, can_reveal_password=True, value=self.__existed_data[11])
+        self.__data[12] = TextField(label='Повторите пароль', password=True, can_reveal_password=True, value=self.__existed_data[11])
+        self.__data[13] = FilledButton(text='Сохранить', on_click=self.save_changes)
         return (Container
             (
             padding=padding.only(left=30, right=30, top=15),

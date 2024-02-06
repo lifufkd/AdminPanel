@@ -45,7 +45,7 @@ class Content(UserControl):
                                 DataColumn(Text(value='Роль', size=15)),
                                 DataColumn(Text(value='ФИО', size=15)),
                                 DataColumn(Text(value='Фото', size=15)),
-                                DataColumn(Text(value='Дата создания', size=15)),
+                                DataColumn(Text(value='День рождения', size=15)),
                                 DataColumn(Text(value='E-mail', size=15)),
                                 DataColumn(Text(value='Телефон', size=15)),
                                 DataColumn(Text(value='Агент', size=15)),

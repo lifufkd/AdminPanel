@@ -31,7 +31,7 @@ class LoadData:
                         if rows[row] is None:
                             l1.append('')
                         else:
-                            l1.append(rows[row].strftime('%Y-%m-%d %H:%M'))
+                            l1.append(rows[row].strftime("%d-%m-%Y"))
                     else:
                         l1.append(word_wrap(
                             self.__db.get_data(f'SELECT title FROM {pointer[row]} WHERE id = {rows[row]} AND deleted = 0', ())[0][0],
@@ -169,7 +169,7 @@ class LoadData:
         return data
 
     def users(self):
-        roles = {0: 'Администратор', 1: 'Модератор', 2: 'Куратор', 3: 'Пользователь'}
+        roles = {0: 'Администратор', 1: 'Модератор', 2: 'Куратор', 3: 'Пользователь', 4: 'Не определена'}
         data = list()
         c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
         raw_data = self.__db.get_data(
@@ -187,7 +187,7 @@ class LoadData:
                     if rows[row] is None:
                         l1.append('')
                     else:
-                        l1.append(rows[row].strftime('%Y-%m-%d %H:%M'))
+                        l1.append(rows[row].strftime("%d-%m-%Y"))
                 elif row in [7, 8]:
                     if rows[row] == 1:
                         l1.append(True)
@@ -273,6 +273,16 @@ class LoadDropBox:
             f'SELECT title, id FROM region WHERE deleted = 0 ORDER BY title',
             ())
 
+    def area(self):
+        return self.__db.get_data(
+            f'SELECT area, id FROM area WHERE deleted = 0 ORDER BY area',
+            ())
+
+    def ksg(self):
+        return self.__db.get_data(
+            f'SELECT code, id FROM ksg WHERE deleted = 0 ORDER BY code',
+            ())
+
 
 class LoadPages:
     def __init__(self, db):
@@ -290,8 +300,63 @@ class LoadPages:
                 if raw_data[0][item+1] is None:
                     items.append('')
                 else:
-                    items.append(raw_data[0][item+1].strftime('%Y-%m-%d %H:%M'))
+                    items.append(raw_data[0][item+1].strftime('%d-%m-%Y'))
             else:
                 items.append(raw_data[0][item + 1])
+        return items
+
+    def area(self, row_id):
+        items = list()
+        raw_data = self.__db.get_data(
+            f'SELECT area, region, deleted FROM area WHERE id = {row_id}',
+            ())
+        for item in range(len(raw_data[0])):
+            if item is None:
+                items.append('')
+            else:
+                items.append(raw_data[0][item])
+        return items
+
+    def users(self, row_id):
+        items = list()
+        raw_data = self.__db.get_data(
+            f'SELECT role, full_name, date_create, email, phone_number, region, area, agent, blocked, password FROM users WHERE id = {row_id}',
+            ())
+        for item in range(len(raw_data[0])):
+            if item == 1:
+                fio = unparse_json(raw_data[0][item])
+                items.extend(fio)
+            elif item == 2:
+                if raw_data[0][item] is None:
+                    items.append('')
+                else:
+                    items.append(raw_data[0][item].strftime('%d-%m-%Y'))
+            else:
+                if raw_data[0][item] is None:
+                    items.append('')
+                else:
+                    items.append(raw_data[0][item])
+        return items
+
+    def med_profile(self, row_id):
+        items = list()
+        temp = list()
+        raw_data = self.__db.get_data(
+            f'SELECT med_profile, deleted FROM med_profile WHERE id = {row_id}',
+            ())
+        for item in range(len(raw_data[0])):
+            if item is None:
+                items.append('')
+            else:
+                items.append(raw_data[0][item])
+        raw_data = self.__db.get_data(
+            f'SELECT id_ksg FROM relative_ksg_med_profile WHERE id_med_profile = {row_id}',
+            ())
+        for i in raw_data:
+            txt_data = self.__db.get_data(
+                f'SELECT code FROM ksg WHERE id = {i[0]}',
+                ())
+            temp.append(txt_data[0][0])
+        items.insert(1, ', '.join(temp))
         return items
 
