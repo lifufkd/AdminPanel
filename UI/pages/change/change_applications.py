@@ -7,25 +7,21 @@ from datetime import datetime
 from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
-from modules.load_data import LoadDropBox
-from modules.utilites import insert_data, unparse_json
+from modules.load_data import LoadDropBox, LoadPages
+from modules.utilites import insert_data, unparse_json, update_data
+from modules.process_data import ProcessData
 #################################################
 
 
-class ContentFilled(UserControl):
-    def __init__(self, load_drop_box, buttons, pg, db):
-        super().__init__()
-        self.__load_drop_box = load_drop_box
-        self.__data_buttons = buttons
-        self.__pg = pg
-        self.__db = db
-
-
-class ContentEmpty(UserControl):
-    def __init__(self, load_drop_box, buttons, pg, db):
+class Content(UserControl):
+    def __init__(self, load_drop_box, buttons, pg, db, process_data, load_pages=None, row_id=None):
         super().__init__()
         self.__dlg_modal = None
+        self.__existed_data = []
         self.__load_drop_box = load_drop_box
+        self.__load_pages = load_pages
+        self.__process_data = process_data
+        self.__row_id = row_id
         self.__data = buttons
         self.__pg = pg
         self.__db = db
@@ -51,39 +47,26 @@ class ContentEmpty(UserControl):
         )
 
     def save_changes(self, e):
-        cached_data = list()
-        required = [11, 15, 17, 18, 19, 20]
-        for item in range(len(self.__data) - 1):
-            if item == 11:
-                try:
-                    cached_data.append(int(self.__data[item].value))
-                except:
-                    cached_data.append(0)
-            elif item == 15:
-                try:
-                    if float(self.__data[item].value) > 9:
-                        cached_data.append(9.99)
-                    else:
-                        cached_data.append(round(float(self.__data[item].value), 2))
-                except:
-                    cached_data.append(0)
-            elif item in required[2:]:
-                try:
-                    cached_data.append(datetime.strptime(self.__data[item].value, '%m/%d/%y %H:%M'))
-                except:
-                    cached_data.append(datetime(1970, 1, 1, 0, 0))
-            else:
-                if self.__data[item].value is None:
-                    cached_data.append('')
-                else:
-                    cached_data.append(self.__data[item].value)
-        cached_data.insert(11, b'')
-        cached_data.append(0)
-        try:
-            insert_data(self.__db, 'application', cached_data)
+        data = self.__process_data.application(self.__data)
+        if self.__row_id is None:
+            try:
+                insert_data(self.__db, 'application', data)
+                self.init_dlg(True)
+            except Exception as e:
+                print(e)
+                self.init_dlg(False)
+        else:
+            try:
+                update_data(self.__db, 'application', data, self.__row_id)
+                self.init_dlg(True)
+            except:
+                self.init_dlg(False)
+
+    def init_dlg(self, switch):
+        if switch:
             self.dlg_modal(['Данные успешно сохранены!', 'god damn right'])
             self.open_dlg_modal(None)
-        except:
+        else:
             self.dlg_modal(['Данные не сохранены', 'дополните заявку'])
             self.open_dlg_modal(None)
 
@@ -163,28 +146,36 @@ class ContentEmpty(UserControl):
             )
         return carts
 
+    def existed_data(self):
+        return self.__load_pages.application(self.__row_id)
+
     def build(self):
-        self.__data[0] = TextField(label='Номер')
-        self.__data[1] = Dropdown(hint_text='Тип заявки', options=self.load_application_type())
-        self.__data[2] = Dropdown(hint_text='Тип оплаты', options=self.payment_type())
-        self.__data[3] = Dropdown(hint_text='Статус заявки', options=self.status())
-        self.__data[4] = Dropdown(hint_text='Автор закрытия заявки', options=self.close_author())
-        self.__data[5] = Dropdown(hint_text='Пациент', options=self.close_author())
-        self.__data[6] = Dropdown(hint_text='МКБ', options=self.mkb())
-        self.__data[7] = Dropdown(hint_text='Услуга', options=self.service())
-        self.__data[8] = TextField(label="Хронические заболевания")
-        self.__data[9] = TextField(label="Комментарий при оформлении")
-        self.__data[10] = TextField(label="Комментарий")
-        self.__data[11] = TextField(label="Стоимость")
-        self.__data[12] = Dropdown(hint_text='Автор заявки', options=self.close_author())
-        self.__data[13] = Dropdown(hint_text='Подтверждение факта поступления', options=self.hospitalized())
-        self.__data[14] = Dropdown(hint_text='Клиника', options=self.hospital())
-        self.__data[15] = TextField(label="Вознаграждение")
-        self.__data[16] = Dropdown(hint_text='Статус вознаграждения', options=self.benefit_status())
-        self.__data[17] = TextField(label="Дата создания")
-        self.__data[18] = TextField(label="Дата уведомления")
-        self.__data[19] = TextField(label="Дата госпитализации")
-        self.__data[20] = TextField(label="Дата закрытия заявки")
+        if self.__row_id is not None:
+            self.__existed_data = self.existed_data()
+        else:
+            for x in range(22):
+                self.__existed_data.append('')
+        self.__data[0] = TextField(label='Номер', value=self.__existed_data[0])
+        self.__data[1] = Dropdown(hint_text='Тип заявки', options=self.load_application_type(), value=self.__existed_data[1])
+        self.__data[2] = Dropdown(hint_text='Тип оплаты', options=self.payment_type(), value=self.__existed_data[2])
+        self.__data[3] = Dropdown(hint_text='Статус заявки', options=self.status(), value=self.__existed_data[3])
+        self.__data[4] = Dropdown(hint_text='Автор закрытия заявки', options=self.close_author(), value=self.__existed_data[4])
+        self.__data[5] = Dropdown(hint_text='Пациент', options=self.close_author(), value=self.__existed_data[5])
+        self.__data[6] = Dropdown(hint_text='МКБ', options=self.mkb(), value=self.__existed_data[6])
+        self.__data[7] = Dropdown(hint_text='Услуга', options=self.service(), value=self.__existed_data[7])
+        self.__data[8] = TextField(label="Хронические заболевания", value=self.__existed_data[8])
+        self.__data[9] = TextField(label="Комментарий при оформлении", value=self.__existed_data[9])
+        self.__data[10] = TextField(label="Комментарий", value=self.__existed_data[10])
+        self.__data[11] = TextField(label="Стоимость", value=self.__existed_data[12])
+        self.__data[12] = Dropdown(hint_text='Автор заявки', options=self.close_author(), value=self.__existed_data[13])
+        self.__data[13] = Dropdown(hint_text='Подтверждение факта поступления', options=self.hospitalized(), value=self.__existed_data[14])
+        self.__data[14] = Dropdown(hint_text='Клиника', options=self.hospital(), value=self.__existed_data[15])
+        self.__data[15] = TextField(label="Вознаграждение", value=self.__existed_data[16])
+        self.__data[16] = Dropdown(hint_text='Статус вознаграждения', options=self.benefit_status(), value=self.__existed_data[17])
+        self.__data[17] = TextField(label="Дата создания", value=self.__existed_data[18])
+        self.__data[18] = TextField(label="Дата уведомления", value=self.__existed_data[19])
+        self.__data[19] = TextField(label="Дата госпитализации", value=self.__existed_data[20])
+        self.__data[20] = TextField(label="Дата закрытия заявки", value=self.__existed_data[21])
         self.__data[21] = FilledButton(text='Сохранить', on_click=self.save_changes)
         return (Container
             (
@@ -264,6 +255,8 @@ class change_applications:
         self.__config = config
         self.__db = db
         self.__load_drop_box = LoadDropBox(db)
+        self.__load_pages = LoadPages(db)
+        self.__process_data = ProcessData()
         self.__states = None
         self.__save = None
         self.__reward = None
@@ -296,8 +289,9 @@ class change_applications:
                        self.__date_of_hospitalization, self.__application_closing_date, self.__save]
 
     def change_application(self, pg: PageData):
-        self.__states = {'add': ContentEmpty(self.__load_drop_box, self.__data_buttons, pg, self.__db),
-         'change': ContentFilled(self.__load_drop_box, self.__data_buttons, pg, self.__db)}
+        row_id = pg.page.client_storage.get("current_action")[1]
+        self.__states = {'add': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db, self.__process_data),
+         'change': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db, self.__process_data, self.__load_pages, row_id)}
         pg.page.title = "Заявки - Создать"
         pg.page.theme_mode = 'dark'
         pg.page.vertical_alignment = MainAxisAlignment.CENTER
@@ -319,7 +313,7 @@ class change_applications:
                     Container(
                         border_radius=10,
                         expand=True,
-                        content=self.__states[pg.page.client_storage.get("current_action")],
+                        content=self.__states[pg.page.client_storage.get("current_action")[0]],
                         shadow=BoxShadow(
                             spread_radius=1,
                             blur_radius=15,

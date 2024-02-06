@@ -28,7 +28,10 @@ class LoadData:
             for row in range(len(rows)):
                 if row in pointer.keys():
                     if row == 6:
-                        l1.append(rows[row].strftime('%Y-%m-%d %H:%M:%S'))
+                        if rows[row] is None:
+                            l1.append('')
+                        else:
+                            l1.append(rows[row].strftime('%Y-%m-%d %H:%M'))
                     else:
                         l1.append(word_wrap(
                             self.__db.get_data(f'SELECT title FROM {pointer[row]} WHERE id = {rows[row]} AND deleted = 0', ())[0][0],
@@ -181,7 +184,10 @@ class LoadData:
                     fio = unparse_json(rows[row])
                     l1.append(f'{fio[0]}\n{fio[1]}\n{fio[2]}')
                 elif row == 4:
-                    l1.append(rows[row].strftime('%Y-%m-%d %H:%M:%S'))
+                    if rows[row] is None:
+                        l1.append('')
+                    else:
+                        l1.append(rows[row].strftime('%Y-%m-%d %H:%M'))
                 elif row in [7, 8]:
                     if rows[row] == 1:
                         l1.append(True)
@@ -261,3 +267,26 @@ class LoadDropBox:
         return self.__db.get_data(
             f'SELECT title, id FROM benefit_status WHERE deleted = 0 ORDER BY title',
             ())
+
+
+class LoadPages:
+    def __init__(self, db):
+        super(LoadPages, self).__init__()
+        self.__db = db
+
+    def application(self, row_id):
+        items = list()
+        special_date = [18, 19, 20, 21]
+        raw_data = self.__db.get_data(
+            f'SELECT * FROM application WHERE id = {row_id}',
+            ())
+        for item in range(len(raw_data[0][1:])):
+            if item in special_date:
+                if raw_data[0][item+1] is None:
+                    items.append('')
+                else:
+                    items.append(raw_data[0][item+1].strftime('%Y-%m-%d %H:%M'))
+            else:
+                items.append(raw_data[0][item + 1])
+        return items
+
