@@ -26,10 +26,61 @@ class Content(UserControl):
         self.__pg = pg
         self.__db = db
 
+    def close_dlg(self, e):
+        self.__dlg_modal.open = False
+        self.__pg.page.update()
+
+    def open_dlg_modal(self, e):
+        self.__pg.page.dialog = self.__dlg_modal
+        self.__dlg_modal.open = True
+        self.__pg.page.update()
+
+    def dlg_modal(self, data):
+        self.__dlg_modal = AlertDialog(
+            modal=True,
+            title=Text(data[0]),
+            content=Text(data[1]),
+            actions=[
+                TextButton("Ok", on_click=self.close_dlg),
+            ],
+            actions_alignment=MainAxisAlignment.END,
+        )
+
+    def save_changes(self, e):
+        data = self.__process_data.area(self.__data)
+        if self.__row_id is None:
+            try:
+                insert_data_area(self.__db, 'area', data)
+                self.init_dlg(True)
+            except:
+                self.init_dlg(False)
+        else:
+            try:
+                update_data_area(self.__db, 'area', data, self.__row_id)
+                self.init_dlg(True)
+            except:
+                self.init_dlg(False)
+
+    def init_dlg(self, switch):
+        if switch:
+            self.dlg_modal(['Данные успешно сохранены!', 'god damn right'])
+            self.open_dlg_modal(None)
+        else:
+            self.dlg_modal(['Данные не сохранены', 'дополните заявку'])
+            self.open_dlg_modal(None)
+
+    def existed_data(self):
+        return self.__load_pages.application(self.__row_id)
+
     def build(self):
-        name = TextField(label="Название")
-        csg = Dropdown(hint_text='КСГ', options=[dropdown.Option("No choices to choose form")])
-        save = FilledButton(text='Сохранить')
+        if self.__row_id is not None:
+            self.existed_data = self.existed_data()
+        else:
+            for x in range(3):
+                self.__existed_data.append('')
+        self.__data[0] = TextField(label="Название", value=self.__existed_data[0])
+        self.__data[1] = Dropdown(hint_text='КСГ', options=self.load_region(), value=self.__existed_data[1])
+        self.__data[2] = FilledButton(text='Сохранить', value=self.__existed_data[0])
         return (Container
             (
             padding=padding.only(left=30, right=30, top=15),
@@ -48,13 +99,13 @@ class Content(UserControl):
                 content=Column(
                     [
                         Container(
-                            Text(value='МКБ - Создать', size=20),
+                            Text(value='Мед. профили - Создать', size=20),
                             padding=padding.only(left=50, right=50, top=15, bottom=7),
                         ),
                         Divider(height=10),
-                        Container(name, padding=padding.only(left=50, right=50)),
-                        Container(csg, padding=padding.only(left=50, right=50)),
-                        Container(save, padding=padding.only(left=50, right=50, top=10, bottom=10)),
+                        Container(self.__data[0], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[1], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[2], padding=padding.only(left=50, right=50, top=10, bottom=10)),
                     ],
                     )
                 )
@@ -63,6 +114,9 @@ class Content(UserControl):
 class change_med_profile:
     def __init__(self, vault, config, db):
         super(change_med_profile, self).__init__()
+        self.__save = None
+        self.__csg = None
+        self.__name = None
         self.__states = None
         self.__vault = vault
         self.__config = config
@@ -76,7 +130,12 @@ class change_med_profile:
         self.__states = {'add': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db, self.__process_data),
                          'change': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db,
                                            self.__process_data, self.__load_pages, row_id)}
-        pg.page.title = "Мед. профили - Создать"
+        self.__data_buttons = [self.__name, self.__csg, self.__save]
+        if row_id is not None:
+            name = 'изменить'
+        else:
+            name = 'создать'
+        pg.page.title = f"Мед. профили - {name}"
         pg.page.theme_mode = 'dark'
         pg.page.vertical_alignment = MainAxisAlignment.CENTER
         pg.page.horizontal_alignment = CrossAxisAlignment.CENTER

@@ -26,21 +26,71 @@ class Content(UserControl):
         self.__pg = pg
         self.__db = db
 
+    def close_dlg(self, e):
+        self.__dlg_modal.open = False
+        self.__pg.page.update()
+
+    def open_dlg_modal(self, e):
+        self.__pg.page.dialog = self.__dlg_modal
+        self.__dlg_modal.open = True
+        self.__pg.page.update()
+
+    def dlg_modal(self, data):
+        self.__dlg_modal = AlertDialog(
+            modal=True,
+            title=Text(data[0]),
+            content=Text(data[1]),
+            actions=[
+                TextButton("Ok", on_click=self.close_dlg),
+            ],
+            actions_alignment=MainAxisAlignment.END,
+        )
+
+    def save_changes(self, e):
+        data = self.__process_data.area(self.__data)
+        if self.__row_id is None:
+            try:
+                insert_data_area(self.__db, 'area', data)
+                self.init_dlg(True)
+            except:
+                self.init_dlg(False)
+        else:
+            try:
+                update_data_area(self.__db, 'area', data, self.__row_id)
+                self.init_dlg(True)
+            except:
+                self.init_dlg(False)
+
+    def init_dlg(self, switch):
+        if switch:
+            self.dlg_modal(['Данные успешно сохранены!', 'god damn right'])
+            self.open_dlg_modal(None)
+        else:
+            self.dlg_modal(['Данные не сохранены', 'дополните заявку'])
+            self.open_dlg_modal(None)
+    def existed_data(self):
+        return self.__load_pages.application(self.__row_id)
+
     def build(self):
-        role = Dropdown(hint_text='Роль', options=[dropdown.Option("Admin"), dropdown.Option("Неопределенна"), dropdown.Option("Куратор")])
-        name = TextField(label="Имя")
-        middle_name = TextField(label="Фамилия")
-        last_name = TextField(label="Отчество")
-        birthday = TextField(label="День рождения")
-        email = TextField(label="E-mail")
-        phone = TextField(label="Телефон")
-        region = Dropdown(hint_text='Регион', options=[dropdown.Option("Центральный федеральный округ"), dropdown.Option("Южный федеральный округ"), dropdown.Option("Уральский федеральный округ")])
-        area = Dropdown(hint_text='Область', options=[dropdown.Option("Белгородская область"), dropdown.Option("Брянская область"), dropdown.Option("Владимирская область")])
-        agent = Switch(value=False)
-        blocked = Switch(value=False)
-        password = TextField(label='Пароль', password=True, can_reveal_password=True)
-        password_retry = TextField(label='Повторите пароль', password=True, can_reveal_password=True)
-        save = FilledButton(text='Сохранить')
+        if self.__row_id is not None:
+            self.existed_data = self.existed_data()
+        else:
+            for x in range(14):
+                self.__existed_data.append('')
+        self.__data[0] = Dropdown(hint_text='Роль', options=[dropdown.Option("Admin"), dropdown.Option("Неопределенна"), dropdown.Option("Куратор")])
+        self.__data[1] = TextField(label="Имя", value=self.__existed_data[0])
+        self.__data[2] = TextField(label="Фамилия", value=self.__existed_data[1])
+        self.__data[3] = TextField(label="Отчество", value=self.__existed_data[2])
+        self.__data[4] = TextField(label="День рождения", value=self.__existed_data[3])
+        self.__data[5] = TextField(label="E-mail", value=self.__existed_data[4])
+        self.__data[6] = TextField(label="Телефон", value=self.__existed_data[5])
+        self.__data[7] = Dropdown(hint_text='Регион', options=self.load_region(), value=self.__existed_data[1])
+        self.__data[8] = Dropdown(hint_text='Область', options=self.load_region(), value=self.__existed_data[1])
+        self.__data[9] = Switch(value=self.__existed_data[0])
+        self.__data[10] = Switch(value=self.__existed_data[0])
+        self.__data[11] = TextField(label='Пароль', password=True, can_reveal_password=True, value=self.__existed_data[6])
+        self.__data[12] = TextField(label='Повторите пароль', password=True, can_reveal_password=True, value=self.__existed_data[7])
+        self.__data[13] = FilledButton(text='Сохранить')
         return (Container
             (
             padding=padding.only(left=30, right=30, top=15),
@@ -62,27 +112,27 @@ class Content(UserControl):
                             Text(value='Основная информация', size=20),
                             padding=padding.only(left=50, right=50, top=15, bottom=7),
                         ),
-                        Container(role, padding=padding.only(left=50, right=50)),
-                        Container(name, padding=padding.only(left=50, right=50)),
-                        Container(middle_name, padding=padding.only(left=50, right=50)),
-                        Container(last_name, padding=padding.only(left=50, right=50)),
-                        Container(birthday, padding=padding.only(left=50, right=50)),
-                        Container(email, padding=padding.only(left=50, right=50)),
-                        Container(phone, padding=padding.only(left=50, right=50)),
-                        Container(region, padding=padding.only(left=50, right=50)),
-                        Container(area, padding=padding.only(left=50, right=50)),
+                        Container(self.__data[0], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[1], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[2], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[3], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[4], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[5], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[6], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[7], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[8], padding=padding.only(left=50, right=50)),
                         Container(Text(value='Агент', size=14), padding=padding.only(left=50, right=50, top=7)),
-                        Container(agent, padding=padding.only(left=50, right=50)),
+                        Container(self.__data[9], padding=padding.only(left=50, right=50)),
                         Container(Text(value='Заблокирован', size=14), padding=padding.only(left=50, right=50, top=7)),
-                        Container(blocked, padding=padding.only(left=50, right=50)),
+                        Container(self.__data[10], padding=padding.only(left=50, right=50)),
                         Divider(height=5),
                         Container(
                             Text(value='Изменить пароль', size=20),
                             padding=padding.only(left=50, right=50, top=15, bottom=7),
                         ),
-                        Container(password, padding=padding.only(left=50, right=50)),
-                        Container(password_retry, padding=padding.only(left=50, right=50)),
-                        Container(save, padding=padding.only(left=50, right=50, top=10, bottom=10))
+                        Container(self.__data[11], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[12], padding=padding.only(left=50, right=50)),
+                        Container(self.__data[13], padding=padding.only(left=50, right=50, top=10, bottom=10))
                     ],
                         scroll=ScrollMode.ALWAYS,
                     )
@@ -93,6 +143,20 @@ class Content(UserControl):
 class change_users:
     def __init__(self, vault, config, db):
         super(change_users, self).__init__()
+        self.__save = None
+        self.__password_retry = None
+        self.__password = None
+        self.__blocked = None
+        self.__agent = None
+        self.__area = None
+        self.__region = None
+        self.__phone = None
+        self.__email = None
+        self.__birthday = None
+        self.__last_name = None
+        self.__middle_name = None
+        self.__name = None
+        self.__role = None
         self.__states = None
         self.__vault = vault
         self.__config = config
@@ -100,13 +164,20 @@ class change_users:
         self.__load_drop_box = LoadDropBox(db)
         self.__load_pages = LoadPages(db)
         self.__process_data = ProcessData()
+        self.__data_buttons = [self.__role, self.__name, self.__middle_name, self.__last_name, self.__birthday,
+                               self.__email, self.__phone, self.__region, self.__area, self.__agent, self.__blocked,
+                               self.__password, self.__password_retry, self.__save]
 
     def change_users(self, pg: PageData):
         row_id = pg.page.client_storage.get("current_action")[1]
         self.__states = {'add': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db, self.__process_data),
                          'change': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db,
                                            self.__process_data, self.__load_pages, row_id)}
-        pg.page.title = "Пользователи - Создать"
+        if row_id is not None:
+            name = 'изменить'
+        else:
+            name = 'создать'
+        pg.page.title = f"Пользователи - {name}"
         pg.page.theme_mode = 'dark'
         pg.page.vertical_alignment = MainAxisAlignment.CENTER
         pg.page.horizontal_alignment = CrossAxisAlignment.CENTER

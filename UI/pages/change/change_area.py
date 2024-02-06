@@ -109,7 +109,7 @@ class Content(UserControl):
                 content=Column(
                     [
                         Container(
-                            Text(value='МКБ - Создать', size=20),
+                            Text(value='Области - Создать', size=20),
                             padding=padding.only(left=50, right=50, top=15, bottom=7),
                         ),
                         Divider(height=10),
