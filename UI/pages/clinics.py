@@ -63,6 +63,10 @@ class Content(UserControl):
         delete_row(self.__db, {'hospital': ['id', event.control.tooltip]})
         self.__pg.page.update()
 
+    def change(self, event):
+        self.__pg.page.client_storage.set("current_action", ["change", event.control.tooltip])
+        self.__pg.navigator.navigate('clinics_change_clinics', self.__pg.page)
+
     def generate_carts(self):
         carts = list()
         for cart in self.__load_data.clinics():
@@ -74,7 +78,7 @@ class Content(UserControl):
                         DataCell(Text(cart[2])),
                         DataCell(Text(cart[3])),
                         DataCell(Text(cart[4])),
-                        DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
+                        DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip=cart[5], on_click=self.change)),
                         DataCell(IconButton(icon=icons.DELETE, tooltip=cart[5], on_click=self.delete_row)),
                     ]
                 )
@@ -91,6 +95,7 @@ class clinics_ui(UserControl):
         self.__db = db
 
     def add(self, event):
+        self.__pg.page.client_storage.set("current_action", ["add", None])
         self.__pg.navigator.navigate('clinics_change_clinics', self.__pg.page)
 
     def create_export(self, event):

@@ -69,6 +69,10 @@ class Content(UserControl):
                    {'users': ['id', event.control.tooltip]})
         self.__pg.page.update()
 
+    def change(self, event):
+        self.__pg.page.client_storage.set("current_action", ["change", event.control.tooltip])
+        self.__pg.navigator.navigate('users_change_users', self.__pg.page)
+
     def generate_carts(self):
         carts = list()
         for cart in self.__load_data.users():
@@ -84,7 +88,7 @@ class Content(UserControl):
                         DataCell(Text(cart[6])),
                         DataCell(Switch(value=cart[7], on_change=self.switchbnt, tooltip=f'{cart[0]}:1')),
                         DataCell(Switch(value=cart[8], on_change=self.switchbnt, tooltip=f'{cart[0]}:2')),
-                        DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
+                        DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip=cart[0], on_click=self.change)),
                         DataCell(IconButton(icon=icons.DELETE, tooltip=cart[0], on_click=self.delete_row)),
                     ],
                 )
@@ -101,6 +105,7 @@ class user_ui(UserControl):
         self.__db = db
 
     def add(self, event):
+        self.__pg.page.client_storage.set("current_action", ["add", None])
         self.__pg.navigator.navigate('users_change_users', self.__pg.page)
 
     def create_export(self, event):

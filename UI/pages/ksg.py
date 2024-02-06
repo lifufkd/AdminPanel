@@ -65,6 +65,10 @@ class Content(UserControl):
         delete_row(self.__db, {'ksg': ['id', user_id], 'relative_ksg_mkb': ['id_ksg', user_id], 'relative_ksg_service': ['id_ksg', user_id], 'relative_ksg_med_profile': ['id_ksg', user_id]})
         self.__pg.page.update()
 
+    def change(self, event):
+        self.__pg.page.client_storage.set("current_action", ["change", event.control.tooltip])
+        self.__pg.navigator.navigate('ksg_change_ksg', self.__pg.page)
+
     def generate_carts(self):
         carts = list()
         for cart in self.__load_data.ksg():
@@ -78,7 +82,7 @@ class Content(UserControl):
                         DataCell(Text(cart[4])),
                         DataCell(Text(cart[5])),
                         DataCell(Text(cart[6])),
-                        DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip='Изменить')),
+                        DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip=cart[7], on_click=self.change)),
                         DataCell(IconButton(icon=icons.DELETE, tooltip=cart[7], on_click=self.delete_row)),
                     ]
                 )
@@ -95,6 +99,7 @@ class ksg_ui(UserControl):
         self.__db = db
 
     def add(self, event):
+        self.__pg.page.client_storage.set("current_action", ["add", None])
         self.__pg.navigator.navigate('ksg_change_ksg', self.__pg.page)
 
     def create_export(self, event):
