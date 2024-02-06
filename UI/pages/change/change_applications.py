@@ -8,7 +8,7 @@ from flet import *
 from flet_navigator import PageData
 from UI.sidebar import SideBar
 from modules.load_data import LoadDropBox, LoadPages
-from modules.utilites import insert_data, unparse_json, update_data
+from modules.utilites import insert_data_application, unparse_json, update_data_application
 from modules.process_data import ProcessData
 #################################################
 
@@ -50,14 +50,13 @@ class Content(UserControl):
         data = self.__process_data.application(self.__data)
         if self.__row_id is None:
             try:
-                insert_data(self.__db, 'application', data)
+                insert_data_application(self.__db, 'application', data)
                 self.init_dlg(True)
-            except Exception as e:
-                print(e)
+            except:
                 self.init_dlg(False)
         else:
             try:
-                update_data(self.__db, 'application', data, self.__row_id)
+                update_data_application(self.__db, 'application', data, self.__row_id)
                 self.init_dlg(True)
             except:
                 self.init_dlg(False)
@@ -292,7 +291,11 @@ class change_applications:
         row_id = pg.page.client_storage.get("current_action")[1]
         self.__states = {'add': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db, self.__process_data),
          'change': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db, self.__process_data, self.__load_pages, row_id)}
-        pg.page.title = "Заявки - Создать"
+        if row_id is not None:
+            name = 'изменить'
+        else:
+            name = 'создать'
+        pg.page.title = f"Заявки - {name}"
         pg.page.theme_mode = 'dark'
         pg.page.vertical_alignment = MainAxisAlignment.CENTER
         pg.page.horizontal_alignment = CrossAxisAlignment.CENTER

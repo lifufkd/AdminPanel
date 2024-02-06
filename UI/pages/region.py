@@ -44,7 +44,6 @@ class Content(UserControl):
                                 DataColumn(Text(value='Название', size=15)),
                                 DataColumn(Text(value='Области', size=15)),
                                 DataColumn(Text(value='', size=15)),
-                                DataColumn(Text(value='', size=15)),
                             ],
                             rows=self.generate_carts()
                         )
@@ -71,7 +70,6 @@ class Content(UserControl):
                     cells=[
                         DataCell(Text(cart[0])),
                         DataCell(Text(cart[1])),
-                        DataCell(IconButton(icon=icons.MODE_EDIT_OUTLINE_OUTLINED, tooltip=cart[2], on_click=self.change)),
                         DataCell(IconButton(icon=icons.DELETE, tooltip=cart[2], on_click=self.delete_row)),
                     ]
                 )

@@ -268,6 +268,11 @@ class LoadDropBox:
             f'SELECT title, id FROM benefit_status WHERE deleted = 0 ORDER BY title',
             ())
 
+    def region(self):
+        return self.__db.get_data(
+            f'SELECT title, id FROM region WHERE deleted = 0 ORDER BY title',
+            ())
+
 
 class LoadPages:
     def __init__(self, db):

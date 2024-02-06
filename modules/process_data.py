@@ -43,3 +43,13 @@ class ProcessData:
         cached_data.insert(11, b'')
         cached_data.append(0)
         return cached_data
+
+    def area(self, data):
+        cached_data = list()
+        for item in range(len(data) - 1):
+            if data[item].value is None:
+                cached_data.append('')
+            else:
+                cached_data.append(data[item].value)
+        cached_data.append(0)
+        return cached_data

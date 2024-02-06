@@ -96,12 +96,20 @@ def delete_row(db, data):
         db.add_db_entry(f'UPDATE {i} SET deleted = 1 WHERE {g[0]} = "{g[1]}"', ())
 
 
-def insert_data(db, table, data):
+def insert_data_application(db, table, data):
     db.add_db_entry(f'INSERT INTO {table} (number, application_type, payment_type, application_status, close_author, patient, mkb, service, сhronic_diseases, comment_designer, comment_tutor, file, price, application_author, hospitalized, hospital, ratio, status, date_create, date_notice, date_hospitalized, date_close, deleted) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', data)
 
 
-def update_data(db, table, data, row_id):
+def update_data_application(db, table, data, row_id):
     db.add_db_entry(f'UPDATE {table} SET number = %s, application_type = %s, payment_type = %s, application_status = %s, close_author = %s, patient = %s, mkb = %s, service = %s, сhronic_diseases = %s, comment_designer = %s, comment_tutor = %s, file = %s, price = %s, application_author = %s, hospitalized = %s, hospital = %s, ratio = %s, status = %s, date_create = %s, date_notice = %s, date_hospitalized = %s, date_close = %s, deleted = %s WHERE id = {row_id}', data)
+
+
+def insert_data_area(db, table, data):
+    db.add_db_entry(f'INSERT INTO {table} (area, region, deleted) VALUES (%s, %s, %s)', data)
+
+
+def update_data_area(db, table, data, row_id):
+    db.add_db_entry(f'UPDATE {table} SET area = %s, region = %s, deleted = %s WHERE id = {row_id}', data)
 
 
 
