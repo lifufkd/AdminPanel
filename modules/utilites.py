@@ -235,6 +235,52 @@ def update_data_ksg(db, data, row_id):
             db.add_db_entry(f'INSERT INTO relative_ksg_med_profile (id_med_profile, id_ksg, deleted) VALUES (%s, %s, %s)',
                             (i, row_id, 0))
 
+def insert_data_mkb(db, data):
+    temp = list()
+    temp1 = list()
+    db.add_db_entry(f'INSERT INTO mkb (code, title, clinical_minimum, deleted) VALUES (%s, %s, %s, %s)', (data[0], data[1], data[4], data[5]))
+    new_id = db.get_data(f'SELECT MAX(id) FROM mkb', ())[0][0]
+    for i in data[2]:
+        ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i, ))
+        temp.append(ids[0][0])
+    for i in temp:
+        db.add_db_entry(f'INSERT INTO relative_ksg_mkb (id_ksg, id_mkb, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
+    for i in data[3]:
+        ids = db.get_data(f'SELECT id FROM service WHERE code = %s', (i, ))
+        temp1.append(ids[0][0])
+    for i in temp1:
+        db.add_db_entry(f'INSERT INTO relative_mkb_service (id_service, id_mkb, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
+
+
+def update_data_mkb(db, data, row_id):
+    temp = list()
+    temp1 = list()
+    db.add_db_entry(f'UPDATE mkb SET code = %s, title = %s, clinical_minimum = %s, deleted = %s WHERE id = %s', (data[0], data[1], data[4], data[5], row_id))
+    for i in data[2]:
+        ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i,))
+        temp.append(ids[0][0])
+    for i in temp:
+        stat = db.get_data(f'SELECT EXISTS(SELECT id_ksg, id_mkb FROM relative_ksg_mkb WHERE id_ksg = %s AND id_mkb = %s)', (i, row_id))[0][0]
+        if stat == 0:
+            db.add_db_entry(f'INSERT INTO relative_ksg_mkb (id_ksg, id_mkb, deleted) VALUES (%s, %s, %s)',
+                            (i, row_id, 0))
+    for i in data[3]:
+        ids = db.get_data(f'SELECT id FROM service WHERE code = %s', (i, ))
+        temp1.append(ids[0][0])
+    for i in temp1:
+        stat = db.get_data(f'SELECT EXISTS(SELECT id_service, id_mkb FROM relative_mkb_service WHERE id_service = %s AND id_mkb = %s)', (i, row_id))[0][0]
+        if stat == 0:
+            db.add_db_entry(f'INSERT INTO relative_mkb_service (id_service, id_mkb, deleted) VALUES (%s, %s, %s)',
+                            (i, row_id, 0))
+
+
+def insert_data_hospital(db, data):
+    db.add_db_entry(f'INSERT INTO service (code, title, clinical_minimum, deleted) VALUES (%s, %s, %s, %s)', (data[0], data[1], data[4], data[5]))
+
+
+def update_data_hospital(db, data, row_id):
+    db.add_db_entry(f'UPDATE service SET code = %s, title = %s, clinical_minimum = %s, deleted = %s WHERE id = %s', (data[0], data[1], data[4], data[5], row_id))
+
 
 
 

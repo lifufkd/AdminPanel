@@ -284,6 +284,21 @@ class LoadDropBox:
             f'SELECT code, id FROM ksg WHERE deleted = 0 ORDER BY code',
             ())
 
+    def med_profile(self):
+        return self.__db.get_data(
+            f'SELECT med_profile, id FROM med_profile WHERE deleted = 0 ORDER BY med_profile',
+            ())
+
+    def base_ratio(self):
+        return self.__db.get_data(
+            f'SELECT parameter FROM ratio_settings WHERE deleted = 0 AND title = "ratio_diff"',
+            ())
+
+    def base_vote(self):
+        return self.__db.get_data(
+            f'SELECT parameter FROM ratio_settings WHERE deleted = 0 AND title = "base"',
+            ())
+
 
 class LoadPages:
     def __init__(self, db):
@@ -443,5 +458,40 @@ class LoadPages:
         items.insert(8, ', '.join(temp))
         items.insert(9, ', '.join(temp1))
         items.insert(10, ', '.join(temp2))
+        return items
+
+    def mkb(self, row_id):
+        items = list()
+        temp = list()
+        temp1 = list()
+        raw_data = self.__db.get_data(
+            f'SELECT code, title, clinical_minimum, deleted FROM mkb WHERE id = {row_id}',
+            ())
+        for item in range(len(raw_data[0])):
+            if item == 2:
+                json_data = unparse_json(raw_data[0][2])
+                for i in json_data:
+                    for g in i:
+                        items.append(g)
+            else:
+                items.append(raw_data[0][item])
+        raw_data = self.__db.get_data(
+            f'SELECT id_ksg FROM relative_ksg_mkb WHERE id_mkb = {row_id}',
+            ())
+        for i in raw_data:
+            txt_data = self.__db.get_data(
+                f'SELECT code FROM ksg WHERE id = {i[0]}',
+                ())
+            temp.append(txt_data[0][0])
+        raw_data = self.__db.get_data(
+            f'SELECT id_service FROM relative_mkb_service WHERE id_mkb = {row_id}',
+            ())
+        for i in raw_data:
+            txt_data = self.__db.get_data(
+                f'SELECT code FROM service WHERE id = {i[0]}',
+                ())
+            temp1.append(txt_data[0][0])
+        items.insert(2, ', '.join(temp))
+        items.insert(3, ', '.join(temp1))
         return items
 

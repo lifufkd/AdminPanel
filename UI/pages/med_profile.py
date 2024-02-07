@@ -107,8 +107,6 @@ class med_profile_ui(UserControl):
                 PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт', on_click=self.create_export)
             ]
         )
-
-
         return Container(
             height=1500,
             content=Column(
@@ -129,7 +127,7 @@ class med_profile_ui(UserControl):
                 scroll=ScrollMode.ALWAYS,
                 alignment=MainAxisAlignment.START,
             ),
-        ),
+        )
 
 
 
