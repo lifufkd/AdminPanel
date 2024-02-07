@@ -360,3 +360,38 @@ class LoadPages:
         items.insert(1, ', '.join(temp))
         return items
 
+    def service(self, row_id):
+        items = list()
+        temp = list()
+        temp1 = list()
+        raw_data = self.__db.get_data(
+            f'SELECT code, title, clinical_minimum, deleted FROM service WHERE id = {row_id}',
+            ())
+        for item in range(len(raw_data[0])):
+            if item == 2:
+                json_data = unparse_json(raw_data[0][2])
+                for i in json_data:
+                    for g in i:
+                        items.append(g)
+            else:
+                items.append(raw_data[0][item])
+        raw_data = self.__db.get_data(
+            f'SELECT id_mkb FROM relative_mkb_service WHERE id_service = {row_id}',
+            ())
+        for i in raw_data:
+            txt_data = self.__db.get_data(
+                f'SELECT code FROM mkb WHERE id = {i[0]}',
+                ())
+            temp.append(txt_data[0][0])
+        raw_data = self.__db.get_data(
+            f'SELECT id_ksg FROM relative_ksg_service WHERE id_service = {row_id}',
+            ())
+        for i in raw_data:
+            txt_data = self.__db.get_data(
+                f'SELECT code FROM ksg WHERE id = {i[0]}',
+                ())
+            temp1.append(txt_data[0][0])
+        items.insert(2, ', '.join(temp))
+        items.insert(3, ', '.join(temp))
+        return items
+

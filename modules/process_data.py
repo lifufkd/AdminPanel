@@ -93,3 +93,22 @@ class ProcessData:
                     cached_data.append(data[item].value)
         cached_data.append(0)
         return cached_data
+
+    def service(self, data):
+        cached_data = list()
+        temp = list()
+        for item in range(5):
+            if item in [2, 3]:
+                cached_data.append(data[item].value.split(', '))
+            elif item == 4:
+                for i in range(4, 13, 3):
+                    temp.append([data[i].value, data[i+1].value, data[i+2].value])
+                cached_data.append(parse_json(temp))
+            else:
+                if data[item].value is None:
+                    cached_data.append('')
+                else:
+                    cached_data.append(data[item].value)
+        cached_data.append(0)
+        print(cached_data)
+        return cached_data

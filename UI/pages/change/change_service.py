@@ -8,6 +8,7 @@ from flet_navigator import PageData
 from UI.sidebar import SideBar
 from modules.load_data import LoadDropBox, LoadPages
 from modules.process_data import ProcessData
+from modules.utilites import insert_data_service, update_data_service
 
 
 #################################################
@@ -47,16 +48,18 @@ class Content(UserControl):
         )
 
     def save_changes(self, e):
-        data = self.__process_data.area(self.__data)
+        data = self.__process_data.service(self.__data)
+        print(data)
         if self.__row_id is None:
             try:
-                insert_data_area(self.__db, 'area', data)
+                insert_data_service(self.__db, data)
                 self.init_dlg(True)
-            except:
+            except Exception as e:
+                print(e)
                 self.init_dlg(False)
         else:
             try:
-                update_data_area(self.__db, 'area', data, self.__row_id)
+                update_data_service(self.__db, data, self.__row_id)
                 self.init_dlg(True)
             except:
                 self.init_dlg(False)
@@ -70,18 +73,36 @@ class Content(UserControl):
             self.open_dlg_modal(None)
 
     def existed_data(self):
-        return self.__load_pages.application(self.__row_id)
+        return self.__load_pages.service(self.__row_id)
+
+    def categories(self):
+        carts = list()
+        for cart in [["Лабораторные исследования", 0], ['Инструментальные исследования', 1], ['Консультации специалистов', 2]]:
+            carts.append(
+                dropdown.Option(text=cart[0], key=cart[1])
+            )
+        return carts
 
     def build(self):
         if self.__row_id is not None:
-            self.existed_data = self.existed_data()
+            self.__existed_data = self.existed_data()
         else:
-            for x in range(5):
+            for x in range(13):
                 self.__existed_data.append('')
         self.__data[0] = TextField(label="Код", value=self.__existed_data[0])
-        self.__data[1] = TextField(label="Название", value=self.__existed_data[0])
-        self.__data[2] = TextField(label="МКБ", value=self.__existed_data[0])
-        self.__data[3] = TextField(label="КСГ", value=self.__existed_data[0])
+        self.__data[1] = TextField(label="Название", value=self.__existed_data[1])
+        self.__data[2] = TextField(label="МКБ", value=self.__existed_data[2])
+        self.__data[3] = TextField(label="КСГ", value=self.__existed_data[3])
+        self.__data[4] = Dropdown(hint_text='Категории', options=self.categories(), value=self.__existed_data[4])
+        self.__data[5] = TextField(label="Название", value=self.__existed_data[5])
+        self.__data[6] = TextField(label="Время действия (Дней)", value=self.__existed_data[6])
+        self.__data[7] = Dropdown(hint_text='Категории', options=self.categories(), value=self.__existed_data[7])
+        self.__data[8] = TextField(label="Название", value=self.__existed_data[8])
+        self.__data[9] = TextField(label="Время действия (Дней)", value=self.__existed_data[9])
+        self.__data[10] = Dropdown(hint_text='Категории', options=self.categories(), value=self.__existed_data[10])
+        self.__data[11] = TextField(label="Название", value=self.__existed_data[11])
+        self.__data[12] = TextField(label="Время действия (Дней)", value=self.__existed_data[12])
+        self.__data[13] = FilledButton(text='Сохранить', on_click=self.save_changes)
         clinical_minimum = DataTable(
             border_radius=10,
             width=1500,
@@ -96,51 +117,29 @@ class Content(UserControl):
                 DataRow(
                     cells=[
                         DataCell(Text(value="1")),
-                        DataCell(
-                            Dropdown(hint_text='Категории', options=[dropdown.Option("Лабораторные исследования")])),
-                        DataCell(TextField(label="Название", )),
-                        DataCell(TextField(label="Время действия (Дней)")),
+                        DataCell(self.__data[4]),
+                        DataCell(self.__data[5]),
+                        DataCell(self.__data[6]),
                     ]
                 ),
                 DataRow(
                     cells=[
                         DataCell(Text(value="2")),
-                        DataCell(
-                            Dropdown(hint_text='Категории', options=[dropdown.Option("Лабораторные исследования")])),
-                        DataCell(TextField(label="Название", )),
-                        DataCell(TextField(label="Время действия (Дней)")),
+                        DataCell(self.__data[7]),
+                        DataCell(self.__data[8]),
+                        DataCell(self.__data[9]),
                     ]
                 ),
                 DataRow(
                     cells=[
                         DataCell(Text(value="3")),
-                        DataCell(
-                            Dropdown(hint_text='Категории', options=[dropdown.Option("Лабораторные исследования")])),
-                        DataCell(TextField(label="Название", )),
-                        DataCell(TextField(label="Время действия (Дней)")),
-                    ]
-                ),
-                DataRow(
-                    cells=[
-                        DataCell(Text(value="4")),
-                        DataCell(
-                            Dropdown(hint_text='Категории', options=[dropdown.Option("Лабораторные исследования")])),
-                        DataCell(TextField(label="Название", )),
-                        DataCell(TextField(label="Время действия (Дней)")),
-                    ]
-                ),
-                DataRow(
-                    cells=[
-                        DataCell(Text(value="5")),
-                        DataCell(
-                            Dropdown(hint_text='Категории', options=[dropdown.Option("Лабораторные исследования")])),
-                        DataCell(TextField(label="Название", )),
-                        DataCell(TextField(label="Время действия (Дней)")),
+                        DataCell(self.__data[10]),
+                        DataCell(self.__data[11]),
+                        DataCell(self.__data[12]),
                     ]
                 )
             ]
         )
-        self.__data[4] = FilledButton(text='Сохранить')
         return (Container
             (
             padding=padding.only(left=30, right=30, top=15),
@@ -172,7 +171,7 @@ class Content(UserControl):
                             padding=padding.only(left=50, right=50, top=5, bottom=2),
                         ),
                         Container(clinical_minimum, padding=padding.only(left=50, right=50)),
-                        Container(self.__data[4], padding=padding.only(left=50, right=50, top=10, bottom=10)),
+                        Container(self.__data[13], padding=padding.only(left=50, right=50, top=10, bottom=10)),
                     ],
                     )
                 )
@@ -181,6 +180,15 @@ class Content(UserControl):
 class change_service:
     def __init__(self, vault, config, db):
         super(change_service, self).__init__()
+        self.__param9 = None
+        self.__param8 = None
+        self.__param7 = None
+        self.__param2 = None
+        self.__param6 = None
+        self.__param5 = None
+        self.__param1 = None
+        self.__param4 = None
+        self.__param3 = None
         self.__save = None
         self.__csg = None
         self.__mkb = None
@@ -193,13 +201,15 @@ class change_service:
         self.__load_drop_box = LoadDropBox(db)
         self.__load_pages = LoadPages(db)
         self.__process_data = ProcessData()
+        self.__data_buttons = [self.__code, self.__name, self.__mkb, self.__csg, self.__param1, self.__param2, 
+                               self.__param3, self.__param4, self.__param5, self.__param6, self.__param7, self.__param8, 
+                               self.__param9, self.__save]
 
     def change_service(self, pg: PageData):
         row_id = pg.page.client_storage.get("current_action")[1]
         self.__states = {'add': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db, self.__process_data),
                          'change': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db,
                                            self.__process_data, self.__load_pages, row_id)}
-        self.__data_buttons = [self.__code, self.__name, self.__mkb, self.__csg, self.__save]
         if row_id is not None:
             name = 'изменить'
         else:

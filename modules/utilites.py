@@ -148,6 +148,49 @@ def update_data_med_profile(db, data, row_id):
                             (i, row_id, 0))
 
 
+def insert_data_service(db, data):
+    temp = list()
+    temp1 = list()
+    db.add_db_entry(f'INSERT INTO service (code, title, clinical_minimum, deleted) VALUES (%s, %s, %s, %s)', (data[0], data[1], data[4], data[5]))
+    new_id = db.get_data(f'SELECT MAX(id) FROM service', ())[0][0]
+    print('0')
+    for i in data[2]:
+        ids = db.get_data(f'SELECT id FROM mkb WHERE code = %s', (i, ))
+        temp.append(ids[0][0])
+    print('1')
+    for i in temp:
+        db.add_db_entry(f'INSERT INTO relative_mkb_service (id_mkb, id_service, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
+    print('2')
+    for i in data[3]:
+        ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i, ))
+        temp1.append(ids[0][0])
+    print('3')
+    for i in temp1:
+        db.add_db_entry(f'INSERT INTO relative_ksg_service (id_ksg, id_service, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
+
+
+def update_data_service(db, data, row_id):
+    temp = list()
+    temp1 = list()
+    db.add_db_entry(f'UPDATE service SET code = %s, title = %s, clinical_minimum = %s, deleted = %s WHERE id = %s', (data[0], data[1], data[4], data[5], row_id))
+    for i in data[2]:
+        ids = db.get_data(f'SELECT id FROM mkb WHERE code = %s', (i,))
+        temp.append(ids[0][0])
+    for i in temp:
+        stat = db.get_data(f'SELECT EXISTS(SELECT id_mkb, id_service FROM relative_mkb_service WHERE id_mkb = %s AND id_service = %s)', (i, row_id))[0][0]
+        if stat == 0:
+            db.add_db_entry(f'INSERT INTO relative_mkb_service (id_mkb, id_service, deleted) VALUES (%s, %s, %s)',
+                            (i, row_id, 0))
+    for i in data[3]:
+        ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i, ))
+        temp1.append(ids[0][0])
+    for i in temp1:
+        stat = db.get_data(f'SELECT EXISTS(SELECT id_ksg, id_service FROM relative_ksg_service WHERE id_ksg = %s AND id_service = %s)', (i, row_id))[0][0]
+        if stat == 0:
+            db.add_db_entry(f'INSERT INTO relative_ksg_service (id_ksg, id_service, deleted) VALUES (%s, %s, %s)',
+                            (i, row_id, 0))
+
+
 
 
 

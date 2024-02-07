@@ -85,7 +85,6 @@ class Content(UserControl):
     def build(self):
         if self.__row_id is not None:
             self.__existed_data = self.existed_data()
-            print(self.__existed_data)
         else:
             for x in range(3):
                 self.__existed_data.append('')
