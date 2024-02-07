@@ -48,18 +48,21 @@ class Content(UserControl):
         )
 
     def save_changes(self, e):
-        data = self.__process_data.area(self.__data)
+        data = self.__process_data.hospital(self.__data)
+        print(data)
         if self.__row_id is None:
             try:
                 insert_data_hospital(self.__db, data)
                 self.init_dlg(True)
-            except:
+            except Exception as e:
+                print(e)
                 self.init_dlg(False)
         else:
             try:
                 update_data_hospital(self.__db, data, self.__row_id)
                 self.init_dlg(True)
-            except:
+            except Exception as e:
+                print(e)
                 self.init_dlg(False)
 
     def init_dlg(self, switch):
@@ -71,7 +74,7 @@ class Content(UserControl):
             self.open_dlg_modal(None)
 
     def existed_data(self):
-        return self.__load_pages.application(self.__row_id)
+        return self.__load_pages.hospital(self.__row_id)
 
     def user(self):
         carts = list()
@@ -80,14 +83,6 @@ class Content(UserControl):
             user_fio = unparse_json(fio[0])
             fios.append([f'{user_fio[0]} {user_fio[1]} {user_fio[2]}', fio[1]])
         for cart in fios:
-            carts.append(
-                dropdown.Option(text=cart[0], key=cart[1])
-            )
-        return carts
-
-    def med_profile(self):
-        carts = list()
-        for cart in self.__load_drop_box.med_profile():
             carts.append(
                 dropdown.Option(text=cart[0], key=cart[1])
             )
@@ -112,8 +107,9 @@ class Content(UserControl):
     def build(self):
         if self.__row_id is not None:
             self.__existed_data = self.existed_data()
+            print(self.__existed_data)
         else:
-            for x in range(29):
+            for x in range(30):
                 if x == 3:
                     self.__existed_data.append(self.__load_drop_box.base_ratio()[0][0])
                 elif x == 4:
@@ -121,7 +117,7 @@ class Content(UserControl):
                 else:
                     self.__existed_data.append('')
         self.__data[0] = TextField(label='Название', value=self.__existed_data[0])
-        self.__data[1] = Dropdown(hint_text='Медицинские профили', options=self.med_profile(), value=self.__existed_data[1])
+        self.__data[1] = TextField(label='Медицинские профили (ввод через запятую)', value=self.__existed_data[1])
         self.__data[2] = Dropdown(hint_text='Модератор', options=self.user(), value=self.__existed_data[2])
         self.__data[3] = TextField(label="Коэффициент дифференциации", value=self.__existed_data[3], suffix_text="В формате 9.99 (не >9.99)")
         self.__data[4] = TextField(label="Базовая ставка", value=self.__existed_data[4], suffix_text="В формате 99999.99 (не >99999.99)")
@@ -141,14 +137,16 @@ class Content(UserControl):
         self.__data[18] = TextField(label="Номер договора", value=self.__existed_data[18])
         self.__data[19] = TextField(label="Управляющий клиники", value=self.__existed_data[19])
         self.__data[20] = TextField(label="Должность управляющего", value=self.__existed_data[20])
-        self.__data[21] = TextField(label="ИНН", value=self.__existed_data[21])
-        self.__data[22] = TextField(label="КПП", value=self.__existed_data[22])
-        self.__data[23] = TextField(label="ОГРН", value=self.__existed_data[23])
-        self.__data[24] = TextField(label="Почтовый индекс", value=self.__existed_data[24])
-        self.__data[25] = TextField(label="Название банка", value=self.__existed_data[25])
-        self.__data[26] = TextField(label="Корреспондентский счет", value=self.__existed_data[26])
-        self.__data[27] = TextField(label="БИК", value=self.__existed_data[27])
-        self.__data[28] = FilledButton(text='Сохранить', on_click=self.save_changes)
+        self.__data[21] = TextField(label="ФИО управляющего", value=self.__existed_data[21])
+        self.__data[22] = TextField(label="ИНН", value=self.__existed_data[22])
+        self.__data[23] = TextField(label="КПП", value=self.__existed_data[23])
+        self.__data[24] = TextField(label="ОГРН", value=self.__existed_data[24])
+        self.__data[25] = TextField(label="Почтовый индекс", value=self.__existed_data[25])
+        self.__data[26] = TextField(label="Расчётный счёт", value=self.__existed_data[26])
+        self.__data[27] = TextField(label="Название банка", value=self.__existed_data[27])
+        self.__data[28] = TextField(label="Корреспондентский счет", value=self.__existed_data[28])
+        self.__data[29] = TextField(label="БИК", value=self.__existed_data[29])
+        self.__data[30] = FilledButton(text='Сохранить', on_click=self.save_changes)
         other_contacts = DataTable(
             vertical_lines=border.BorderSide(1),
             horizontal_lines=border.BorderSide(1),
@@ -251,7 +249,9 @@ class Content(UserControl):
                         Container(self.__data[25], padding=padding.only(left=50, right=50, top=10)),
                         Container(self.__data[26], padding=padding.only(left=50, right=50, top=10)),
                         Container(self.__data[27], padding=padding.only(left=50, right=50, top=10)),
-                        Container(self.__data[28], padding=padding.only(left=50, right=50, top=10, bottom=10)),
+                        Container(self.__data[28], padding=padding.only(left=50, right=50, top=10)),
+                        Container(self.__data[29], padding=padding.only(left=50, right=50, top=10)),
+                        Container(self.__data[30], padding=padding.only(left=50, right=50, top=10, bottom=10)),
                     ],
                     scroll=ScrollMode.ALWAYS,
                     )
@@ -262,6 +262,8 @@ class Content(UserControl):
 class change_clinics:
     def __init__(self, vault, config, db):
         super(change_clinics, self).__init__()
+        self.__ogrn7 = None
+        self.__ogrn6 = None
         self.__ogrn5 = None
         self.__ogrn2 = None
         self.__ogrn4 = None
@@ -303,7 +305,7 @@ class change_clinics:
                                self.__base_rate, self.__site, self.__phone, self.__email, self.__other_contacts,
                                self.__region, self.__area, self.__city, self.__address, self.__contract_number,
                                self.__clinic_manager, self.__position_manager, self.__tin, self.__kpp, self.__ogrn, self.__ogrn1, 
-                               self.__ogrn2, self.__ogrn3, self.__ogrn4, self.__ogrn5,
+                               self.__ogrn2, self.__ogrn3, self.__ogrn4, self.__ogrn5, self.__ogrn6, self.__ogrn7,
                                self.__postcode, self.__bank_name, self.__correspondent_account, self.__bik, self.__save]
 
 

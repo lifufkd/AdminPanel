@@ -77,8 +77,8 @@ class DB:
             name TEXT,
             med_profiles TEXT, # внешние ключи в JSON
             moderator INT, # внешний ключ
-            ratio INT, # Из ratio_settings
-            base_rate INT,
+            ratio DECIMAL(18,2), # Из ratio_settings
+            base_rate DECIMAL(18,2),
             site TEXT,
             phone_number TEXT,
             email VARCHAR(255),
@@ -87,7 +87,7 @@ class DB:
             area INT, # внешний ключ
             city TEXT,
             addres TEXT,
-            photo LONGTEXT, # JSON massive with blobs
+            photo LONGBLOB, # JSON massive with blobs
             requisites TEXT, # JSON dict with (Номер договора, Управляющий клиники, Должность управляющего, ФИО управляющего, ИНН, КПП, ОГРН, Почтовый индекс, Расчетный счет, Название банка, Корреспондентский счет, БИК)
             deleted BOOL
         );

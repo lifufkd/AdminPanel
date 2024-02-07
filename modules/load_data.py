@@ -45,23 +45,26 @@ class LoadData:
         return data
 
     def area(self):
-        c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
-        max_len = 400  # перенос слов по 15 символов
-        data = list()
-        raw_data = self.__db.get_data(
-            f'SELECT area, region, id FROM area WHERE deleted = 0 ORDER BY area',
-            ())
-        for rows in raw_data:
-            l1 = []
-            for row in range(len(rows)):
-                if row == 1:
-                    l1.append(self.__db.get_data(f'SELECT title FROM region WHERE id = {rows[1]} AND deleted = 0', ())[0][0])
-                elif row == 2:
-                    l1.append(rows[row])
-                else:
-                    l1.append(word_wrap(rows[row], max_len))
-            data.append(l1)
-        return data
+        try:
+            c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
+            max_len = 400  # перенос слов по 15 символов
+            data = list()
+            raw_data = self.__db.get_data(
+                f'SELECT area, region, id FROM area WHERE deleted = 0 ORDER BY area',
+                ())
+            for rows in raw_data:
+                l1 = []
+                for row in range(len(rows)):
+                    if row == 1:
+                        l1.append(self.__db.get_data(f'SELECT title FROM region WHERE id = {rows[1]} AND deleted = 0', ())[0][0])
+                    elif row == 2:
+                        l1.append(rows[row])
+                    else:
+                        l1.append(word_wrap(rows[row], max_len))
+                data.append(l1)
+            return data
+        except:
+            return None
 
     def clinics(self):
         data = list()
@@ -493,5 +496,29 @@ class LoadPages:
             temp1.append(txt_data[0][0])
         items.insert(2, ', '.join(temp))
         items.insert(3, ', '.join(temp1))
+        return items
+
+    def hospital(self, row_id):
+        items = list()
+        raw_data = self.__db.get_data(
+            f'SELECT name, med_profiles, moderator, ratio, base_rate, site, phone_number, email, other_contact, region, area, city, addres, requisites FROM hospital WHERE id = {row_id}', ())
+        for item in range(len(raw_data[0])):
+            if item == 8:
+                json_data = unparse_json(raw_data[0][8])
+                for i in json_data:
+                    for g in i:
+                        items.append(g)
+            elif item == 1:
+                json_data = unparse_json(raw_data[0][1])
+                txt = ''
+                for i in json_data:
+                    txt += self.__db.get_data(f'SELECT med_profile FROM med_profile WHERE id = {i} AND deleted = 0', ())[0][0] + ', '
+                items.append(txt)
+            elif item == 13:
+                json_data = unparse_json(raw_data[0][13])
+                for i in json_data:
+                    items.append(i)
+            else:
+                items.append(raw_data[0][item])
         return items
 

@@ -4,7 +4,7 @@
 #                     SBR                       #
 #################################################
 from datetime import datetime
-from decimal import Decimal
+from decimal import FloatOperation
 from modules.utilites import parse_json
 #################################################
 
@@ -26,12 +26,12 @@ class ProcessData:
                 try:
                     if float(data[item].value) < 0:
                         raise
-                    elif float(data[item].value) > 9:
-                        cached_data.append(Decimal(9.99))
+                    elif float(data[item].value) >= 10:
+                        cached_data.append(FloatOperation(9.99))
                     else:
-                        cached_data.append(Decimal(round(float(data[item].value), 2)))
+                        cached_data.append(FloatOperation(round(float(data[item].value), 2)))
                 except:
-                    cached_data.append(Decimal(0))
+                    cached_data.append(FloatOperation(0))
             elif item in required[2:]:
                 try:
                     cached_data.append(datetime.strptime(data[item].value, "%d-%m-%Y"))
@@ -169,13 +169,41 @@ class ProcessData:
 
     def hospital(self, data):
         cached_data = list()
-        temp = list()
-        for item in range(len(data) - 1):
-            if item in [2, 3]:
-                cached_data.append(data[item].value.split(', '))
+        for item in range(19):
+            if item == 3:
+                try:
+                    if float(data[item].value) < 0:
+                        raise
+                    elif float(data[item].value) >= 10:
+                        cached_data.append(FloatOperation(9.99))
+                    else:
+                        cached_data.append(FloatOperation(round(float(data[item].value), 2)))
+                except:
+                    cached_data.append(FloatOperation(0.00))
             elif item == 4:
-                for i in range(4, 13, 3):
-                    temp.append([data[i].value, data[i+1].value, data[i+2].value])
+                try:
+                    if float(data[item].value) < 0:
+                        raise
+                    elif float(data[item].value) >= 100000:
+                        cached_data.append(FloatOperation(99999.99))
+                    else:
+                        cached_data.append(FloatOperation(round(float(data[item].value), 2)))
+                except:
+                    cached_data.append(FloatOperation(0.00))
+            elif item == 1:
+                cached_data.append(data[item].value.split(', '))
+            elif item in [8, 9, 10, 11, 12, 13]:
+                if item in [9, 10, 11, 12, 13]:
+                    continue
+                else:
+                    temp = []
+                    for i in range(8, 14, 2):
+                        temp.append([data[i].value, data[i + 1].value])
+                    cached_data.append(parse_json(temp))
+            elif item == 18:
+                temp = []
+                for i in range(12):
+                    temp.append(data[i+18].value)
                 cached_data.append(parse_json(temp))
             else:
                 if data[item].value is None:

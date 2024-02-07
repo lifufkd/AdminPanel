@@ -275,11 +275,30 @@ def update_data_mkb(db, data, row_id):
 
 
 def insert_data_hospital(db, data):
-    db.add_db_entry(f'INSERT INTO service (code, title, clinical_minimum, deleted) VALUES (%s, %s, %s, %s)', (data[0], data[1], data[4], data[5]))
+    temp = list()
+    for i in data[1]:
+        ids = db.get_data(f'SELECT id FROM med_profile WHERE med_profile = %s', (i, ))
+        temp.append(ids[0][0])
+    data[1] = parse_json(temp)
+    db.add_db_entry(f'INSERT INTO hospital (name, med_profiles, moderator, ratio, base_rate, site, '
+                    f'phone_number, email, other_contact, region, area, city, addres, requisites, deleted) '
+                    f'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', data)
 
 
 def update_data_hospital(db, data, row_id):
-    db.add_db_entry(f'UPDATE service SET code = %s, title = %s, clinical_minimum = %s, deleted = %s WHERE id = %s', (data[0], data[1], data[4], data[5], row_id))
+    temp = list()
+    print(f'{data} отвал')
+    try:
+        for i in data[1]:
+            ids = db.get_data(f'SELECT id FROM med_profile WHERE med_profile = %s', (i,))
+            temp.append(ids[0][0])
+    except:
+        pass
+    data[1] = parse_json(temp)
+    print(data)
+    db.add_db_entry(f'UPDATE hospital SET name = %s, med_profiles = %s, moderator = %s, ratio = %s, base_rate = %s, '
+                    f'site = %s, phone_number = %s, email = %s, other_contact = %s, region = %s, area = %s, city = %s ,'
+                    f' addres = %s, requisites = %s, deleted = %s WHERE id = {row_id}', data)
 
 
 
