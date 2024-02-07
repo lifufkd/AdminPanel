@@ -39,6 +39,12 @@ class Content(UserControl):
                 content=Row(
                     [
                         DataTable(
+                            vertical_lines=border.BorderSide(1),
+                            horizontal_lines=border.BorderSide(1),
+                            data_row_min_height=0,
+                            data_row_max_height=200,
+                            show_bottom_border=True,
+                            width=1600,
                             columns=
                             [
                                 DataColumn(Text(value='ID', size=15)),
@@ -115,9 +121,6 @@ class user_ui(UserControl):
         # ЗНАЧЕНИЯ#
         btn_create = FilledButton(icon=icons.ADD,
                                   text='Создать', on_click=self.add)  # ЭТО КНОПКА ДЛЯ СОЗДАНИЯ ЗАЯВКИ, НУЖНО СДЕЛАТЬ ПЕРЕХОД С ЭТОЙ КНОПКИ НА ДРУГУЮ СТРАНИЦУ
-        btn_next_page1 = FilledButton(text='1', tooltip='thispage')
-        btn_next_page2 = FilledButton(text='2', tooltip='nextpage2')
-        btn_next_page3 = FilledButton(text='3', tooltip='nextpage3')
         pb = PopupMenuButton(
             items=[
                 PopupMenuItem(icon=icons.CLOUD_DOWNLOAD, text='Экспорт', on_click=self.create_export)
@@ -137,12 +140,7 @@ class user_ui(UserControl):
                         padding=padding.only(left=50, top=10)
                     ),
                     Container(
-                        content=Content(self.__load_data, self.__db, self.__pg)
-                    ),
-                    Container(
-                        content=Row([btn_next_page1, btn_next_page2, btn_next_page3]),
-                        alignment=alignment.bottom_center,
-                        padding=padding.only(top=10, left=50),
+                        content=Content(self.__load_data, self.__db, self.__pg),
                     ),
                 ],
                 scroll=ScrollMode.ALWAYS,

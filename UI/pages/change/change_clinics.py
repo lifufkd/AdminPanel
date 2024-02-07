@@ -81,10 +81,10 @@ class Content(UserControl):
         self.__data[0] = TextField(label='Название', value=self.__existed_data[0])
         self.__data[1] = Dropdown(hint_text='Медицинские профили', options=self.load_region(), value=self.__existed_data[1])
         self.__data[2] = Dropdown(hint_text='Модератор', options=self.load_region(), value=self.__existed_data[1])
-        self.__data[3] = TextField(label="Коэффициент дифференциации", value=self.__existed_data[0])
-        self.__data[4] = TextField(label="Базовая ставка", value=self.__existed_data[0])
-        self.__data[5] = TextField(label="Сайт", value=self.__existed_data[0])
-        self.__data[6] = TextField(label="Телефон", value=self.__existed_data[0])
+        self.__data[3] = TextField(label="Коэффициент дифференциации", value=self.__existed_data[0], suffix_text="В формате 9.99 (не >9.99)")
+        self.__data[4] = TextField(label="Базовая ставка", value=self.__existed_data[0], suffix_text="В формате 99999.99 (не >99999.99)")
+        self.__data[5] = TextField(label="Сайт", value=self.__existed_data[0], prefix_text="https://", suffix_text=".com")
+        self.__data[6] = TextField(label="Телефон", value=self.__existed_data[0], prefix_text="+7")
         self.__data[7] = TextField(label="E-mail", value=self.__existed_data[0])
         other_contacts = DataTable(
             border_radius=10,

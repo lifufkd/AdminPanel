@@ -39,6 +39,12 @@ class Content(UserControl):
                 content=Row(
                     [
                         DataTable(
+                            vertical_lines=border.BorderSide(1),
+                            horizontal_lines=border.BorderSide(1),
+                            data_row_min_height=0,
+                            data_row_max_height=200,
+                            show_bottom_border=True,
+                            width=1600,
                             columns=
                             [
                                 DataColumn(Text(value='Код', size=15)),
