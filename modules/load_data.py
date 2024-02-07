@@ -392,6 +392,6 @@ class LoadPages:
                 ())
             temp1.append(txt_data[0][0])
         items.insert(2, ', '.join(temp))
-        items.insert(3, ', '.join(temp))
+        items.insert(3, ', '.join(temp1))
         return items
 

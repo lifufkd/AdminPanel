@@ -153,18 +153,14 @@ def insert_data_service(db, data):
     temp1 = list()
     db.add_db_entry(f'INSERT INTO service (code, title, clinical_minimum, deleted) VALUES (%s, %s, %s, %s)', (data[0], data[1], data[4], data[5]))
     new_id = db.get_data(f'SELECT MAX(id) FROM service', ())[0][0]
-    print('0')
     for i in data[2]:
         ids = db.get_data(f'SELECT id FROM mkb WHERE code = %s', (i, ))
         temp.append(ids[0][0])
-    print('1')
     for i in temp:
         db.add_db_entry(f'INSERT INTO relative_mkb_service (id_mkb, id_service, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
-    print('2')
     for i in data[3]:
         ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i, ))
         temp1.append(ids[0][0])
-    print('3')
     for i in temp1:
         db.add_db_entry(f'INSERT INTO relative_ksg_service (id_ksg, id_service, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
 
