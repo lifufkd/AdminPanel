@@ -24,7 +24,9 @@ class ProcessData:
                     cached_data.append(0)
             elif item == 15:
                 try:
-                    if float(data[item].value) > 9:
+                    if float(data[item].value) < 0:
+                        raise
+                    elif float(data[item].value) > 9:
                         cached_data.append(Decimal(9.99))
                     else:
                         cached_data.append(Decimal(round(float(data[item].value), 2)))
@@ -110,5 +112,39 @@ class ProcessData:
                 else:
                     cached_data.append(data[item].value)
         cached_data.append(0)
-        print(cached_data)
+        return cached_data
+
+    def ksg(self, data):
+        cached_data = list()
+        temp = list()
+        for item in range(len(data) - 1):
+            if item in [8, 9, 10]:
+                cached_data.append(data[item].value.split(', '))
+            elif item in [3, 4, 5, 6]:
+                try:
+                    if float(data[item].value) < 0:
+                        raise
+                    elif float(data[item].value) > 1:
+                        temp.append(1.00)
+                    else:
+                        temp.append(round(float(data[item].value), 2))
+                except:
+                    temp.append(0.00)
+            elif item == 2:
+                try:
+                   cached_data.append(int(data[item].value))
+                except:
+                    cached_data.append(0)
+            elif item == 7:
+                if data[item].value:
+                    cached_data.append(1)
+                else:
+                    cached_data.append(0)
+            else:
+                if data[item].value is None:
+                    cached_data.append('')
+                else:
+                    cached_data.append(data[item].value)
+        cached_data.insert(3, parse_json(temp))
+        cached_data.append(0)
         return cached_data

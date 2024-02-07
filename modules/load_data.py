@@ -13,6 +13,7 @@ class LoadData:
     def __init__(self, db):
         super(LoadData, self).__init__()
         self.__db = db
+        # ограничение на количество элементов на одной странице (имплементация многостраничности)# DESC LIMIT 15 OFFSET {(c_page - 1) * 15}
 
     def application(self):
         c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
@@ -21,7 +22,7 @@ class LoadData:
         pointer = {1: 'application_type', 2: 'payment_type', 3: 'application_status', 4: 'hospitalized',
                    5: 'benefit_status', 6: 'date_format'}
         raw_data = self.__db.get_data(
-            f'SELECT number, application_type, payment_type, application_status, hospitalized, status, date_create, id FROM application WHERE deleted = 0 ORDER BY date_create DESC LIMIT 15 OFFSET {(c_page - 1) * 15}',
+            f'SELECT number, application_type, payment_type, application_status, hospitalized, status, date_create, id FROM application WHERE deleted = 0 ORDER BY date_create',
             ())
         for rows in raw_data:
             l1 = []
@@ -48,7 +49,7 @@ class LoadData:
         max_len = 400  # перенос слов по 15 символов
         data = list()
         raw_data = self.__db.get_data(
-            f'SELECT area, region, id FROM area WHERE deleted = 0 ORDER BY area DESC LIMIT 15 OFFSET {(c_page - 1) * 15}',
+            f'SELECT area, region, id FROM area WHERE deleted = 0 ORDER BY area',
             ())
         for rows in raw_data:
             l1 = []
@@ -67,7 +68,7 @@ class LoadData:
         c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
         max_len = 30  # перенос слов по 15 символов
         raw_data = self.__db.get_data(
-            f'SELECT name, med_profiles, site, phone_number, email, id FROM hospital WHERE deleted = 0 ORDER BY name DESC LIMIT 15 OFFSET {(c_page - 1) * 15}',
+            f'SELECT name, med_profiles, site, phone_number, email, id FROM hospital WHERE deleted = 0 ORDER BY name',
             ())
         for rows in raw_data:
             l1 = []
@@ -92,7 +93,7 @@ class LoadData:
         pointer = {4: ['relative_ksg_mkb', 'id_ksg'], 5: ['relative_ksg_service', 'id_ksg'],
                    6: ['relative_ksg_med_profile', 'id_ksg']}
         raw_data = self.__db.get_data(
-            f'SELECT code, title, price, ratio_switch, id FROM ksg WHERE deleted = 0 ORDER BY code DESC LIMIT 15 OFFSET {(c_page - 1) * 15}',
+            f'SELECT code, title, price, ratio_switch, id FROM ksg WHERE deleted = 0 ORDER BY code',
             ())
         for rows in raw_data:
             l1 = []
@@ -118,7 +119,7 @@ class LoadData:
         max_len = 400  # перенос слов по 15 символов
         pointer = {1: ['relative_ksg_med_profile', 'id_med_profile']}
         raw_data = self.__db.get_data(
-            f'SELECT med_profile, id FROM med_profile WHERE deleted = 0 ORDER BY med_profile DESC LIMIT 15 OFFSET {(c_page - 1) * 15}',
+            f'SELECT med_profile, id FROM med_profile WHERE deleted = 0 ORDER BY med_profile',
             ())
         for rows in raw_data:
             l1 = []
@@ -137,7 +138,7 @@ class LoadData:
         max_len = 200  # перенос слов по 15 символов
         pointer = {2: ['relative_ksg_mkb', 'id_mkb'], 3: ['relative_mkb_service', 'id_mkb']}
         raw_data = self.__db.get_data(
-            f'SELECT code, title, id FROM mkb WHERE deleted = 0 ORDER BY code DESC LIMIT 15 OFFSET {(c_page - 1) * 15}',
+            f'SELECT code, title, id FROM mkb WHERE deleted = 0 ORDER BY code',
             ())
         for rows in raw_data:
             l1 = []
@@ -155,7 +156,7 @@ class LoadData:
         c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
         max_len = 400  # перенос слов по 15 символов
         raw_data = self.__db.get_data(
-            f'SELECT title, id FROM region WHERE deleted = 0 ORDER BY title DESC LIMIT 15 OFFSET {(c_page - 1) * 15}',
+            f'SELECT title, id FROM region WHERE deleted = 0 ORDER BY title',
             ())
         for rows in raw_data:
             l1 = []
@@ -173,7 +174,7 @@ class LoadData:
         data = list()
         c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
         raw_data = self.__db.get_data(
-            f'SELECT id, role, full_name, photo, date_create, email, phone_number, agent, blocked FROM users WHERE deleted = 0 ORDER BY id DESC LIMIT 15 OFFSET {(c_page - 1) * 15}',
+            f'SELECT id, role, full_name, photo, date_create, email, phone_number, agent, blocked FROM users WHERE deleted = 0 ORDER BY id',
             ())
         for rows in raw_data:
             l1 = []
@@ -204,7 +205,7 @@ class LoadData:
         max_len = 200  # перенос слов по 15 символов
         pointer = {2: ['relative_ksg_service', 'id_service'], 3: ['relative_mkb_service', 'id_service']}
         raw_data = self.__db.get_data(
-            f'SELECT code, title, id FROM service WHERE deleted = 0 ORDER BY code DESC LIMIT 15 OFFSET {(c_page - 1) * 15}',
+            f'SELECT code, title, id FROM service WHERE deleted = 0 ORDER BY code',
             ())
         for rows in raw_data:
             l1 = []
@@ -393,5 +394,54 @@ class LoadPages:
             temp1.append(txt_data[0][0])
         items.insert(2, ', '.join(temp))
         items.insert(3, ', '.join(temp1))
+        return items
+
+    def ksg(self, row_id):
+        items = list()
+        temp = list()
+        temp1 = list()
+        temp2 = list()
+        raw_data = self.__db.get_data(
+            f'SELECT code, title, price, ratio, ratio_switch, deleted FROM ksg WHERE id = {row_id}',
+            ())
+        for item in range(len(raw_data[0])):
+            if item == 3:
+                json_data = unparse_json(raw_data[0][3])
+                for i in json_data:
+                    items.append(str(i))
+            elif item == 4:
+                if raw_data[0][4]:
+                    items.append(True)
+                else:
+                    items.append(False)
+            else:
+                items.append(raw_data[0][item])
+        raw_data = self.__db.get_data(
+            f'SELECT id_mkb FROM relative_ksg_mkb WHERE id_ksg = {row_id}',
+            ())
+        for i in raw_data:
+            txt_data = self.__db.get_data(
+                f'SELECT code FROM mkb WHERE id = {i[0]}',
+                ())
+            temp.append(txt_data[0][0])
+        raw_data = self.__db.get_data(
+            f'SELECT id_mkb FROM relative_ksg_mkb WHERE id_ksg = {row_id}',
+            ())
+        for i in raw_data:
+            txt_data = self.__db.get_data(
+                f'SELECT code FROM service WHERE id = {i[0]}',
+                ())
+            temp1.append(txt_data[0][0])
+        raw_data = self.__db.get_data(
+            f'SELECT id_med_profile FROM relative_ksg_med_profile WHERE id_ksg = {row_id}',
+            ())
+        for i in raw_data:
+            txt_data = self.__db.get_data(
+                f'SELECT med_profile FROM med_profile WHERE id = {i[0]}',
+                ())
+            temp2.append(txt_data[0][0])
+        items.insert(8, ', '.join(temp))
+        items.insert(9, ', '.join(temp1))
+        items.insert(10, ', '.join(temp2))
         return items
 

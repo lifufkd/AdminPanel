@@ -8,6 +8,7 @@ from flet_navigator import PageData
 from UI.sidebar import SideBar
 from modules.load_data import LoadDropBox, LoadPages
 from modules.process_data import ProcessData
+from modules.utilites import insert_data_ksg, update_data_ksg
 
 
 #################################################
@@ -47,18 +48,19 @@ class Content(UserControl):
         )
 
     def save_changes(self, e):
-        data = self.__process_data.area(self.__data)
+        data = self.__process_data.ksg(self.__data)
         if self.__row_id is None:
             try:
-                insert_data_area(self.__db, 'area', data)
+                insert_data_ksg(self.__db, data)
                 self.init_dlg(True)
             except:
                 self.init_dlg(False)
         else:
             try:
-                update_data_area(self.__db, 'area', data, self.__row_id)
+                update_data_ksg(self.__db, data, self.__row_id)
                 self.init_dlg(True)
-            except:
+            except Exception as e:
+                print(e)
                 self.init_dlg(False)
 
     def init_dlg(self, switch):
@@ -70,26 +72,26 @@ class Content(UserControl):
             self.open_dlg_modal(None)
 
     def existed_data(self):
-        return self.__load_pages.application(self.__row_id)
+        return self.__load_pages.ksg(self.__row_id)
 
     def build(self):
         if self.__row_id is not None:
-            self.existed_data = self.existed_data()
+            self.__existed_data = self.existed_data()
         else:
             for x in range(12):
                 self.__existed_data.append('')
         self.__data[0] = TextField(label="Код", value=self.__existed_data[0])
-        self.__data[1] = TextField(label="Название", value=self.__existed_data[0])
-        self.__data[2] = TextField(label="Стоимость", value=self.__existed_data[0], suffix_text="В формате 99999.99 (не >99999.99)")
-        self.__data[3] = TextField(label="Коэффициент затрат", value=self.__existed_data[0], suffix_text="В формате: 9.99 (не >9.99)")
-        self.__data[4] = TextField(label="Коэффициенты специфики", value=self.__existed_data[0], suffix_text="В формате: 9.99 (не >9.99)")
-        self.__data[5] = TextField(label="Коэффициент уровня", value=self.__existed_data[0], suffix_text="В формате: 9.99 (не >9.99)")
-        self.__data[6] = TextField(label="Доля зарплаты и прочих расходов", value=self.__existed_data[0], suffix_text="В формате: 9.99 (не >9.99)")
-        self.__data[7] = Switch(value=self.__existed_data[0])
-        self.__data[8] = TextField(label="МКБ", value=self.__existed_data[0])
-        self.__data[9] = TextField(label="Услуги", value=self.__existed_data[0])
-        self.__data[10] = TextField(label="Мед. профили", value=self.__existed_data[0])
-        self.__data[11] = FilledButton(text='Сохранить')
+        self.__data[1] = TextField(label="Название", value=self.__existed_data[1])
+        self.__data[2] = TextField(label="Стоимость", value=self.__existed_data[2])
+        self.__data[3] = TextField(label="Коэффициент затрат", value=self.__existed_data[3])
+        self.__data[4] = TextField(label="Коэффициенты специфики", value=self.__existed_data[4])
+        self.__data[5] = TextField(label="Коэффициент уровня", value=self.__existed_data[5])
+        self.__data[6] = TextField(label="Доля зарплаты и прочих расходов", value=self.__existed_data[6])
+        self.__data[7] = Switch(value=self.__existed_data[7])
+        self.__data[8] = TextField(label="МКБ", value=self.__existed_data[8])
+        self.__data[9] = TextField(label="Услуги", value=self.__existed_data[9])
+        self.__data[10] = TextField(label="Мед. профили", value=self.__existed_data[10])
+        self.__data[11] = FilledButton(text='Сохранить', on_click=self.save_changes)
         return (Container
             (
             padding=padding.only(left=30, right=30, top=15),
@@ -171,16 +173,17 @@ class change_ksg:
         self.__load_drop_box = LoadDropBox(db)
         self.__load_pages = LoadPages(db)
         self.__process_data = ProcessData()
+        self.__data_buttons = [self.__code, self.__name, self.__cost, self.__cost_ratio,
+                               self.__specificity_coefficients,
+                               self.__level_coefficient, self.__share_of_salary_and_other_expenses,
+                               self.__coefficient_of_the_medical_institution_level, self.__mkb, self.__service,
+                               self.__med_profiles, self.__save]
 
     def change_ksg(self, pg: PageData):
         row_id = pg.page.client_storage.get("current_action")[1]
         self.__states = {'add': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db, self.__process_data),
                          'change': Content(self.__load_drop_box, self.__data_buttons, pg, self.__db,
                                            self.__process_data, self.__load_pages, row_id)}
-        self.__data_buttons = [self.__code, self.__name, self.__cost, self.__cost_ratio, self.__specificity_coefficients,
-                               self.__level_coefficient, self.__share_of_salary_and_other_expenses,
-                               self.__coefficient_of_the_medical_institution_level, self.__mkb, self.__service,
-                               self.__med_profiles, self.__save]
         if row_id is not None:
             name = 'изменить'
         else:
