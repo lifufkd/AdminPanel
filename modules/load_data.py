@@ -34,9 +34,13 @@ class LoadData:
                         else:
                             l1.append(rows[row].strftime("%d-%m-%Y"))
                     else:
-                        l1.append(word_wrap(
-                            self.__db.get_data(f'SELECT title FROM {pointer[row]} WHERE id = {rows[row]} AND deleted = 0', ())[0][0],
-                            max_len))
+                        d = self.__db.get_data(f'SELECT title FROM {pointer[row]} WHERE id = "{rows[row]}" AND deleted = 0', ())
+                        if len(d) > 0:
+                            l1.append(word_wrap(
+                                d[0][0],
+                                max_len))
+                        else:
+                            l1.append('')
                 elif row == 7:
                     l1.append(rows[row])
                 else:
@@ -56,7 +60,11 @@ class LoadData:
                 l1 = []
                 for row in range(len(rows)):
                     if row == 1:
-                        l1.append(self.__db.get_data(f'SELECT title FROM region WHERE id = {rows[1]} AND deleted = 0', ())[0][0])
+                        d = self.__db.get_data(f'SELECT title FROM region WHERE id = "{rows[1]}" AND deleted = 0', ())
+                        if len(d[0]) > 0:
+                            l1.append(d[0][0])
+                        else:
+                            l1.append('')
                     elif row == 2:
                         l1.append(rows[row])
                     else:
@@ -79,8 +87,11 @@ class LoadData:
                 if row == 1:
                     profiles = ''
                     for item in unparse_json(rows[row]):
-                        profiles += self.__db.get_data(f'SELECT med_profile FROM med_profile WHERE id = {item} AND deleted = 0', ())[0][
-                                        0] + ', '
+                        d = self.__db.get_data(f'SELECT med_profile FROM med_profile WHERE id = "{item}" AND deleted = 0', ())
+                        if len(d) > 0:
+                            profiles += d[0][0] + ', '
+                        else:
+                            l1.append('')
                     l1.append(word_wrap(profiles, max_len))
                 elif row == 5:
                     l1.append(rows[row])

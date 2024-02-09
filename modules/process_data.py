@@ -16,6 +16,7 @@ class ProcessData:
     def application(self, data):
         cached_data = list()
         required = [11, 15, 17, 18, 19, 20]
+        external_key = [1, 2, 3, 4, 5, 6, 7, 12, 14, 15, 13, 16]
         for item in range(len(data) - 1):
             if item == 11:
                 try:
@@ -37,11 +38,13 @@ class ProcessData:
                     cached_data.append(datetime.strptime(data[item].value, "%d-%m-%Y"))
                 except:
                     cached_data.append(None)
-            else:
-                if data[item].value is None:
-                    cached_data.append('')
+            elif item in external_key:
+                if data[item].value == '':
+                    cached_data.append(None)
                 else:
                     cached_data.append(data[item].value)
+            else:
+                cached_data.append(data[item].value)
         cached_data.insert(11, b'')
         cached_data.append(0)
         return cached_data
@@ -49,8 +52,11 @@ class ProcessData:
     def area(self, data):
         cached_data = list()
         for item in range(len(data) - 1):
-            if data[item].value is None:
-                cached_data.append('')
+            if item == 1:
+                if data[item].value == '':
+                    cached_data.append(None)
+                else:
+                    cached_data.append(data[item].value)
             else:
                 cached_data.append(data[item].value)
         cached_data.append(0)
@@ -58,6 +64,7 @@ class ProcessData:
 
     def users(self, data):
         cached_data = list()
+        external_key = [8, 7, 0]
         for item in range(len(data) - 1):
             if item in [1, 2, 3]:
                 if len(data[1].value) == 0 or len(data[2].value) == 0 or len(data[3].value) == 0:
@@ -75,11 +82,13 @@ class ProcessData:
                 if (data[11].value != data[12].value) or (data[11].value or data[12].value) is None:
                     return None
                 continue
-            else:
-                if data[item].value is None:
-                    cached_data.append('')
+            elif item in external_key:
+                if data[item].value == '':
+                    cached_data.append(None)
                 else:
                     cached_data.append(data[item].value)
+            else:
+                cached_data.append(data[item].value)
         cached_data.append(0)
         return cached_data
 
@@ -89,10 +98,7 @@ class ProcessData:
             if item == 1:
                 cached_data.append(data[item].value.split(', '))
             else:
-                if data[item].value is None:
-                    cached_data.append('')
-                else:
-                    cached_data.append(data[item].value)
+                cached_data.append(data[item].value)
         cached_data.append(0)
         return cached_data
 
@@ -107,10 +113,7 @@ class ProcessData:
                     temp.append([data[i].value, data[i+1].value, data[i+2].value])
                 cached_data.append(parse_json(temp))
             else:
-                if data[item].value is None:
-                    cached_data.append('')
-                else:
-                    cached_data.append(data[item].value)
+                cached_data.append(data[item].value)
         cached_data.append(0)
         return cached_data
 
@@ -141,10 +144,7 @@ class ProcessData:
                 else:
                     cached_data.append(0)
             else:
-                if data[item].value is None:
-                    cached_data.append('')
-                else:
-                    cached_data.append(data[item].value)
+                cached_data.append(data[item].value)
         cached_data.insert(3, parse_json(temp))
         cached_data.append(0)
         return cached_data
@@ -160,15 +160,13 @@ class ProcessData:
                     temp.append([data[i].value, data[i+1].value, data[i+2].value])
                 cached_data.append(parse_json(temp))
             else:
-                if data[item].value is None:
-                    cached_data.append('')
-                else:
-                    cached_data.append(data[item].value)
+                cached_data.append(data[item].value)
         cached_data.append(0)
         return cached_data
 
     def hospital(self, data):
         cached_data = list()
+        external_key = [2, 15, 14]
         for item in range(19):
             if item == 3:
                 try:
@@ -192,6 +190,11 @@ class ProcessData:
                     cached_data.append(FloatOperation(0.00))
             elif item == 1:
                 cached_data.append(data[item].value.split(', '))
+            elif item in external_key:
+                if data[item].value == '':
+                    cached_data.append(None)
+                else:
+                    cached_data.append(data[item].value)
             elif item in [8, 9, 10, 11, 12, 13]:
                 if item in [9, 10, 11, 12, 13]:
                     continue
@@ -206,9 +209,6 @@ class ProcessData:
                     temp.append(data[i+18].value)
                 cached_data.append(parse_json(temp))
             else:
-                if data[item].value is None:
-                    cached_data.append('')
-                else:
-                    cached_data.append(data[item].value)
+                cached_data.append(data[item].value)
         cached_data.append(0)
         return cached_data

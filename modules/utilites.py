@@ -126,7 +126,8 @@ def insert_data_med_profile(db, data):
     med_profile = db.get_data(f'SELECT MAX(id) FROM med_profile', ())[0][0]
     for i in data[1]:
         ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i, ))
-        temp.append(ids[0][0])
+        if len(ids[0]) > 0:
+            temp.append(ids[0][0])
     for i in temp:
         db.add_db_entry(f'INSERT INTO relative_ksg_med_profile (id_ksg, id_med_profile, deleted) VALUES (%s, %s, %s)', (i, med_profile, 0))
 
@@ -136,7 +137,8 @@ def update_data_med_profile(db, data, row_id):
     db.add_db_entry(f'UPDATE med_profile SET med_profile = %s, deleted = %s WHERE id = %s', (data[0], 0, row_id))
     for i in data[1]:
         ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i,))
-        temp.append(ids[0][0])
+        if len(ids[0]) > 0:
+            temp.append(ids[0][0])
     for i in temp:
         stat = db.get_data(f'SELECT EXISTS(SELECT id_ksg, id_med_profile FROM relative_ksg_med_profile WHERE id_ksg = %s AND id_med_profile = %s)', (i, row_id))[0][0]
         if stat == 0:
@@ -151,12 +153,14 @@ def insert_data_service(db, data):
     new_id = db.get_data(f'SELECT MAX(id) FROM service', ())[0][0]
     for i in data[2]:
         ids = db.get_data(f'SELECT id FROM mkb WHERE code = %s', (i, ))
-        temp.append(ids[0][0])
+        if len(ids[0]) > 0:
+            temp.append(ids[0][0])
     for i in temp:
         db.add_db_entry(f'INSERT INTO relative_mkb_service (id_mkb, id_service, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
     for i in data[3]:
         ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i, ))
-        temp1.append(ids[0][0])
+        if len(ids[0]) > 0:
+            temp1.append(ids[0][0])
     for i in temp1:
         db.add_db_entry(f'INSERT INTO relative_ksg_service (id_ksg, id_service, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
 
@@ -167,7 +171,8 @@ def update_data_service(db, data, row_id):
     db.add_db_entry(f'UPDATE service SET code = %s, title = %s, clinical_minimum = %s, deleted = %s WHERE id = %s', (data[0], data[1], data[4], data[5], row_id))
     for i in data[2]:
         ids = db.get_data(f'SELECT id FROM mkb WHERE code = %s', (i,))
-        temp.append(ids[0][0])
+        if len(ids[0]) > 0:
+            temp.append(ids[0][0])
     for i in temp:
         stat = db.get_data(f'SELECT EXISTS(SELECT id_mkb, id_service FROM relative_mkb_service WHERE id_mkb = %s AND id_service = %s)', (i, row_id))[0][0]
         if stat == 0:
@@ -175,7 +180,8 @@ def update_data_service(db, data, row_id):
                             (i, row_id, 0))
     for i in data[3]:
         ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i, ))
-        temp1.append(ids[0][0])
+        if len(ids[0]) > 0:
+            temp1.append(ids[0][0])
     for i in temp1:
         stat = db.get_data(f'SELECT EXISTS(SELECT id_ksg, id_service FROM relative_ksg_service WHERE id_ksg = %s AND id_service = %s)', (i, row_id))[0][0]
         if stat == 0:
@@ -190,17 +196,20 @@ def insert_data_ksg(db, data):
     new_id = db.get_data(f'SELECT MAX(id) FROM ksg', ())[0][0]
     for i in data[5]:
         ids = db.get_data(f'SELECT id FROM mkb WHERE code = %s', (i, ))
-        temp.append(ids[0][0])
+        if len(ids[0]) > 0:
+            temp.append(ids[0][0])
     for i in temp:
         db.add_db_entry(f'INSERT INTO relative_ksg_mkb (id_mkb, id_ksg, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
     for i in data[6]:
         ids = db.get_data(f'SELECT id FROM service WHERE code = %s', (i, ))
-        temp1.append(ids[0][0])
+        if len(ids[0]) > 0:
+            temp1.append(ids[0][0])
     for i in temp1:
         db.add_db_entry(f'INSERT INTO relative_ksg_service (id_service, id_ksg, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
     for i in data[7]:
         ids = db.get_data(f'SELECT id FROM med_profile WHERE med_profile = %s', (i, ))
-        temp2.append(ids[0][0])
+        if len(ids[0]) > 0:
+            temp2.append(ids[0][0])
     for i in temp2:
         db.add_db_entry(f'INSERT INTO relative_ksg_med_profile (id_med_profile, id_ksg, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
 
@@ -212,7 +221,8 @@ def update_data_ksg(db, data, row_id):
     db.add_db_entry(f'UPDATE ksg SET code = %s, title = %s, price = %s, ratio = %s, ratio_switch = %s WHERE id = %s', (data[0], data[1], data[2], data[3], data[4], row_id))
     for i in data[5]:
         ids = db.get_data(f'SELECT id FROM mkb WHERE code = %s', (i,))
-        temp.append(ids[0][0])
+        if len(ids) > 0:
+            temp.append(ids[0][0])
     for i in temp:
         stat = db.get_data(f'SELECT EXISTS(SELECT id_mkb, id_ksg FROM relative_ksg_mkb WHERE id_mkb = %s AND id_ksg = %s)', (i, row_id))[0][0]
         if stat == 0:
@@ -220,7 +230,8 @@ def update_data_ksg(db, data, row_id):
                             (i, row_id, 0))
     for i in data[6]:
         ids = db.get_data(f'SELECT id FROM service WHERE code = %s', (i, ))
-        temp1.append(ids[0][0])
+        if len(ids) > 0:
+            temp1.append(ids[0][0])
     for i in temp1:
         stat = db.get_data(f'SELECT EXISTS(SELECT id_service, id_ksg FROM relative_ksg_service WHERE id_service = %s AND id_ksg = %s)', (i, row_id))[0][0]
         if stat == 0:
@@ -228,7 +239,8 @@ def update_data_ksg(db, data, row_id):
                             (i, row_id, 0))
     for i in data[7]:
         ids = db.get_data(f'SELECT id FROM med_profile WHERE med_profile = %s', (i, ))
-        temp2.append(ids[0][0])
+        if len(ids) > 0:
+            temp2.append(ids[0][0])
     for i in temp2:
         stat = db.get_data(f'SELECT EXISTS(SELECT id_med_profile, id_ksg FROM relative_ksg_med_profile WHERE id_med_profile = %s AND id_ksg = %s)', (i, row_id))[0][0]
         if stat == 0:
@@ -242,12 +254,14 @@ def insert_data_mkb(db, data):
     new_id = db.get_data(f'SELECT MAX(id) FROM mkb', ())[0][0]
     for i in data[2]:
         ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i, ))
-        temp.append(ids[0][0])
+        if len(ids) > 0:
+            temp.append(ids[0][0])
     for i in temp:
         db.add_db_entry(f'INSERT INTO relative_ksg_mkb (id_ksg, id_mkb, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
     for i in data[3]:
         ids = db.get_data(f'SELECT id FROM service WHERE code = %s', (i, ))
-        temp1.append(ids[0][0])
+        if len(ids) > 0:
+            temp1.append(ids[0][0])
     for i in temp1:
         db.add_db_entry(f'INSERT INTO relative_mkb_service (id_service, id_mkb, deleted) VALUES (%s, %s, %s)', (i, new_id, 0))
 
@@ -258,7 +272,8 @@ def update_data_mkb(db, data, row_id):
     db.add_db_entry(f'UPDATE mkb SET code = %s, title = %s, clinical_minimum = %s, deleted = %s WHERE id = %s', (data[0], data[1], data[4], data[5], row_id))
     for i in data[2]:
         ids = db.get_data(f'SELECT id FROM ksg WHERE code = %s', (i,))
-        temp.append(ids[0][0])
+        if len(ids) > 0:
+            temp.append(ids[0][0])
     for i in temp:
         stat = db.get_data(f'SELECT EXISTS(SELECT id_ksg, id_mkb FROM relative_ksg_mkb WHERE id_ksg = %s AND id_mkb = %s)', (i, row_id))[0][0]
         if stat == 0:
@@ -266,7 +281,8 @@ def update_data_mkb(db, data, row_id):
                             (i, row_id, 0))
     for i in data[3]:
         ids = db.get_data(f'SELECT id FROM service WHERE code = %s', (i, ))
-        temp1.append(ids[0][0])
+        if len(ids) > 0:
+            temp1.append(ids[0][0])
     for i in temp1:
         stat = db.get_data(f'SELECT EXISTS(SELECT id_service, id_mkb FROM relative_mkb_service WHERE id_service = %s AND id_mkb = %s)', (i, row_id))[0][0]
         if stat == 0:
@@ -277,8 +293,9 @@ def update_data_mkb(db, data, row_id):
 def insert_data_hospital(db, data):
     temp = list()
     for i in data[1]:
-        ids = db.get_data(f'SELECT id FROM med_profile WHERE med_profile = %s', (i, ))
-        temp.append(ids[0][0])
+        ids = db.get_data(f'SELECT id FROM med_profile WHERE med_profile = %s', (i,))
+        if len(ids) > 0:
+            temp.append(ids[0][0])
     data[1] = parse_json(temp)
     db.add_db_entry(f'INSERT INTO hospital (name, med_profiles, moderator, ratio, base_rate, site, '
                     f'phone_number, email, other_contact, region, area, city, addres, requisites, deleted) '
@@ -287,15 +304,11 @@ def insert_data_hospital(db, data):
 
 def update_data_hospital(db, data, row_id):
     temp = list()
-    print(f'{data} отвал')
-    try:
-        for i in data[1]:
-            ids = db.get_data(f'SELECT id FROM med_profile WHERE med_profile = %s', (i,))
+    for i in data[1]:
+        ids = db.get_data(f'SELECT id FROM med_profile WHERE med_profile = %s', (i,))
+        if len(ids) > 0:
             temp.append(ids[0][0])
-    except:
-        pass
     data[1] = parse_json(temp)
-    print(data)
     db.add_db_entry(f'UPDATE hospital SET name = %s, med_profiles = %s, moderator = %s, ratio = %s, base_rate = %s, '
                     f'site = %s, phone_number = %s, email = %s, other_contact = %s, region = %s, area = %s, city = %s ,'
                     f' addres = %s, requisites = %s, deleted = %s WHERE id = {row_id}', data)
