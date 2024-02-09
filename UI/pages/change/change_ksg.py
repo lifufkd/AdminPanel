@@ -53,7 +53,8 @@ class Content(UserControl):
             try:
                 insert_data_ksg(self.__db, data)
                 self.init_dlg(True)
-            except:
+            except Exception as e:
+                print(e)
                 self.init_dlg(False)
         else:
             try:

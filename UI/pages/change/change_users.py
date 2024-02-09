@@ -49,7 +49,6 @@ class Content(UserControl):
 
     def save_changes(self, e):
         data = self.__process_data.users(self.__data)
-        print(data)
         if self.__row_id is None:
             try:
                 insert_data_users(self.__db, 'users', data)

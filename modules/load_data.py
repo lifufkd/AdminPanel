@@ -49,30 +49,28 @@ class LoadData:
         return data
 
     def area(self):
-        try:
-            c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
-            max_len = 400  # перенос слов по 15 символов
-            data = list()
-            raw_data = self.__db.get_data(
-                f'SELECT area, region, id FROM area WHERE deleted = 0 ORDER BY area',
-                ())
-            for rows in raw_data:
-                l1 = []
-                for row in range(len(rows)):
-                    if row == 1:
-                        d = self.__db.get_data(f'SELECT title FROM region WHERE id = "{rows[1]}" AND deleted = 0', ())
-                        if len(d[0]) > 0:
-                            l1.append(d[0][0])
-                        else:
-                            l1.append('')
-                    elif row == 2:
-                        l1.append(rows[row])
+        c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
+        max_len = 400  # перенос слов по 15 символов
+        data = list()
+        raw_data = self.__db.get_data(
+            f'SELECT area, region, id FROM area WHERE deleted = 0 ORDER BY area',
+            ())
+        for rows in raw_data:
+            l1 = []
+            for row in range(len(rows)):
+                if row == 1:
+                    d = self.__db.get_data(f'SELECT title FROM region WHERE id = "{rows[1]}" AND deleted = 0', ())
+                    if len(d) > 0:
+                        l1.append(d[0][0])
                     else:
-                        l1.append(word_wrap(rows[row], max_len))
-                data.append(l1)
-            return data
-        except:
-            return None
+                        l1.append('')
+                elif row == 2:
+                    l1.append(rows[row])
+                else:
+                    l1.append(word_wrap(rows[row], max_len))
+            data.append(l1)
+        return data
+
 
     def clinics(self):
         data = list()
@@ -184,7 +182,7 @@ class LoadData:
         return data
 
     def users(self):
-        roles = {0: 'Администратор', 1: 'Модератор', 2: 'Куратор', 3: 'Пользователь', 4: 'Не определена'}
+        roles = {0: 'Администратор', 1: 'Модератор', 2: 'Куратор', 3: 'Пользователь', 4: 'Не определена', None: 'Не определена'}
         data = list()
         c_page = 1  # выбор страницы, в поле ввода по умолчанию поставить .value = 1
         raw_data = self.__db.get_data(
